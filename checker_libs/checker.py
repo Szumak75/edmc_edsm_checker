@@ -66,7 +66,7 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
 
     def update(self) -> None:
         if self._search:
-            search = self._search
+            search: ThSearchSystem = self._search
             search.search_queue.put(self.jumpsystem)
 
 
