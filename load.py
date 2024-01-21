@@ -12,6 +12,8 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Any, Dict, Optional, Tuple
 
+from jsktoolbox.tktool.widgets import CreateToolTip
+
 from config import config
 
 from checker_libs.system import LogLevels
@@ -64,8 +66,17 @@ def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, tk.Label]:
     # add button to main frame
     label = tk.Label(
         parent,
-        text=f"{checker_object.pluginname} v{checker_object.version}:",
+        text=f"Jump target:",
     )
+    CreateToolTip(
+        label,
+        [
+            f"{checker_object.pluginname} v{checker_object.version}",
+            "",
+            "Check EDSM database information\nabout jumt target.",
+        ],
+    )
+
     status = tk.StringVar()
     status_label: tk.Label = tk.Label(parent, textvariable=status)
     checker_object.status = status
@@ -113,7 +124,7 @@ def journal_entry(
     # new
     if entry["event"] == "FSDTarget":
         checker_object.jumpsystem.name = entry.get(
-            "StarsSystem", checker_object.jumpsystem.name
+            "Name", checker_object.jumpsystem.name
         )
         checker_object.jumpsystem.address = entry.get(
             "SystemAddress", checker_object.jumpsystem.address
@@ -122,6 +133,10 @@ def journal_entry(
             "StarClass", checker_object.jumpsystem.star_class
         )
         checker_object.update()
+    if entry["event"] == "FSDJump":
+        starsystem: str = entry.get("StarSystem", "")
+        if checker_object.jumpsystem.name == starsystem:
+            checker_object.status.set("")
     checker_object.logger.debug = f"{checker_object.pluginname}->journal_entry: done."
 
 

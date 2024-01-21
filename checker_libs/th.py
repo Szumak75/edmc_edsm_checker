@@ -10,7 +10,7 @@
 from time import sleep
 import tkinter as tk
 
-from typing import Optional, Union
+from typing import Optional, Union, Dict, Any
 from queue import Empty, Queue, SimpleQueue
 from inspect import currentframe
 
@@ -31,6 +31,7 @@ class _Keys(object, metaclass=ReadOnlyClass):
 
     QSEARCH: str = "__qsearch__"
     EXIT: str = "__exit__"
+    STATUS: str = "__status__"
 
 
 class ThSearchSystem(ThBaseObject, BLogClient, Thread):
@@ -54,11 +55,18 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
             )
         self.logger = LogClient(log_queue)
 
+        # status
+        self._data[_Keys.STATUS] = status
+
         # init search queue
         self._data[_Keys.QSEARCH] = Queue()
 
         # EXIT flag
         self._data[_Keys.EXIT] = False
+
+    @property
+    def status(self) -> tk.StringVar:
+        return self._data[_Keys.STATUS]
 
     @property
     def search_queue(self) -> Queue:
@@ -69,16 +77,50 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
 
         url = Url()
 
+        self.logger.debug = f"{self._c_name} start"
+
         while not self._data[_Keys.EXIT]:
             try:
                 item: StarsSystem = self.search_queue.get_nowait()
                 # processing
                 if item and item.name:
-                    system = url.system_query(item)
-                    self.logger.debug = f"{self._c_name}: {system}"
+                    system: Optional[Dict[str, Any]] = url.system_query(item)
+                    # self.logger.debug = f"{self._c_name}: {system}"
+                    if system:
+                        self.status.set("")
+                        item.update_from_edsm(system)
+                        query: str = url.bodies_url(item)
+                        # self.logger.debug = f"url: {query}"
+                        bodies: Dict[str, Any] = url.url_query(query)
+                        if bodies:
+                            item.update_from_edsm(bodies)
+                            self.logger.debug = f"system information: {item}"
+                            out: str = ""
+                            if "bodycount" in item.data and "bodies" in item.data:
+                                out = (
+                                    f'[{item.data["bodies"]}/{item.data["bodycount"]}]'
+                                )
+                            else:
+                                out = "[??/??]"
+                            if "coordslocked" in item.data:
+                                if item.data["coordslocked"]:
+                                    out = f"Lock {out}"
+                                else:
+                                    out = f"Unlock {out}"
+                            if (
+                                "requirepermit" in item.data
+                                and item.data["requirepermit"]
+                            ):
+                                out = f"Permint {out}"
+                            self.status.set(f"{item.name} - {out}")
+
+                    else:
+                        self.status.set(f"{item.name} - system unknown")
 
             except Empty:
                 sleep(0.5)
+
+        self.logger.debug = f"{self._c_name} end"
 
     def quit(self) -> None:
         """Set exit flag."""

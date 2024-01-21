@@ -67,14 +67,10 @@ class Url(NoDynamicAttributes):
                 inspect.currentframe(),
             )
 
-        if ssystem.address:
-            return requote_uri(
-                f"{self.__system_url}bodies?systemId={ssystem.address}{self.options}"
-            )
         if ssystem.name:
-            return requote_uri(
-                f"{self.__system_url}bodies?systemName={ssystem.name}{self.options}"
-            )
+            return requote_uri(f"{self.__system_url}bodies?systemName={ssystem.name}")
+        if ssystem.address:
+            return requote_uri(f"{self.__system_url}bodies?systemId={ssystem.address}")
         return ""
 
     def system_url(self, ssystem: StarsSystem) -> str:
@@ -162,9 +158,9 @@ class Url(NoDynamicAttributes):
             print(ex)
         return None
 
-    def url_query(self, url: str) -> List[Dict[str, Any]]:
+    def url_query(self, url: str) -> Dict[str, Any]:
         """Return result of query for url."""
-        out = []
+        out = {}
         if not url:
             return out
 

@@ -6,6 +6,8 @@
   
   Purpose: 
 """
+
+from typing import Optional
 from checker_libs.base_log import BLogClient, BLogProcessor
 
 from checker_libs.base_data import BCheckerData
@@ -28,8 +30,8 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
         """Initialize main class."""
         # data
 
-        self.pluginname = "EDC"
-        self.version = "0.1"
+        self.pluginname = "EDSM Checker"
+        self.version = "1.0.0-dev"
 
         # logging subsystem
         self.qlog = SimpleQueue()
@@ -54,10 +56,11 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
                 self.log_processor.send(log)
 
     def start_search_engine(self) -> None:
+        self.logger.debug = f"{self.pluginname} starting search engine..."
         if self._search is None:
             # init search thread
             self._search = ThSearchSystem(self.qlog, self.status)
-            search = self._search
+            search: Optional[ThSearchSystem] = self._search
             if search:
                 search.start()
 

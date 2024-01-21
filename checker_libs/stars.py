@@ -64,6 +64,8 @@ class StarsSystem(NoDynamicAttributes):
             self.data["requirepermit"] = data["requirePermit"]
         if "distance" in data:
             self.data["distance"] = data["distance"]
+        if "bodies" in data:
+            self.data["bodies"] = len(data["bodies"])
 
     @property
     def address(self) -> Optional[int]:
