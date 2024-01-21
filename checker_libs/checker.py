@@ -28,8 +28,8 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
         """Initialize main class."""
         # data
 
-        self.pluginname = "EDSM Checker"
-        self.version = "0.0.1-dev"
+        self.pluginname = "EDC"
+        self.version = "0.1"
 
         # logging subsystem
         self.qlog = SimpleQueue()
