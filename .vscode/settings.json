@@ -1,0 +1,11 @@
+{
+    "python.terminal.launchArgs": [],
+    "autoDocstring.docstringFormat": "pep257",
+    "python.autoComplete.extraPaths": [
+        "~/Projects/EDMarketConnector",
+    ],
+    "python.analysis.extraPaths": [
+        "~/Projects/EDMarketConnector",
+    ],
+    "python.analysis.typeCheckingMode": "basic"
+}
