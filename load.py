@@ -15,6 +15,7 @@ from typing import Any, Dict, Optional, Tuple
 from jsktoolbox.tktool.widgets import CreateToolTip
 
 from config import config
+from theme import theme
 
 from checker_libs.system import LogLevels
 from checker_libs.checker import Checker
@@ -136,7 +137,7 @@ def journal_entry(
     if entry["event"] == "FSDJump":
         starsystem: str = entry.get("StarSystem", "")
         if checker_object.jumpsystem.name == starsystem:
-            checker_object.status.set("")
+            checker_object.status.set("Waiting for data...")
     checker_object.logger.debug = f"{checker_object.pluginname}->journal_entry: done."
 
 

@@ -8,8 +8,10 @@
 """
 
 from typing import Optional
-from checker_libs.base_log import BLogClient, BLogProcessor
 
+from theme import theme
+
+from checker_libs.base_log import BLogClient, BLogProcessor
 from checker_libs.base_data import BCheckerData
 from checker_libs.system import LogClient, LogProcessor
 
