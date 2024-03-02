@@ -6,7 +6,7 @@
   Purpose:
 """
 
-import inspect
+from inspect import currentframe
 from typing import Optional, List, Dict, Union, Any
 
 from jsktoolbox.attribtool import NoDynamicAttributes
@@ -81,7 +81,7 @@ class StarsSystem(NoDynamicAttributes):
                 f"Int type expected, '{type(arg)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
     @property
@@ -101,7 +101,7 @@ class StarsSystem(NoDynamicAttributes):
                 f"String type expected, '{type(arg)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
     @property
@@ -120,7 +120,7 @@ class StarsSystem(NoDynamicAttributes):
                 f"String type expected, '{type(arg)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
     @property
@@ -139,7 +139,7 @@ class StarsSystem(NoDynamicAttributes):
                 f"String type expected, '{type(arg)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
     @property
@@ -158,7 +158,7 @@ class StarsSystem(NoDynamicAttributes):
                 f"String type expected, '{type(arg)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
     @property
@@ -177,7 +177,7 @@ class StarsSystem(NoDynamicAttributes):
                 f"List type expected, '{type(arg)}' received.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
     @property
@@ -211,7 +211,7 @@ class StarsSystem(NoDynamicAttributes):
                 f"Type of data container is dict, '{type(value)}' received, cannot proceed.",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         self.__data = value
 

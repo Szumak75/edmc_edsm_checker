@@ -7,7 +7,7 @@
 """
 
 import copy
-import inspect
+from inspect import currentframe
 import json
 import random
 from itertools import permutations
@@ -64,7 +64,7 @@ class Url(NoDynamicAttributes):
                 f"StarsSystem type expected, '{type(ssystem)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
         if ssystem.name:
@@ -80,7 +80,7 @@ class Url(NoDynamicAttributes):
                 f"StarsSystem type expected, '{type(ssystem)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
 
         if ssystem.name:
@@ -96,7 +96,7 @@ class Url(NoDynamicAttributes):
                 f"StarsSystem type expected, '{type(ssystem)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         if not isinstance(radius, int):
             radius = 50
@@ -119,7 +119,7 @@ class Url(NoDynamicAttributes):
                 f"StarsSystem type expected, '{type(ssystem)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         if not isinstance(size, int):
             size = 100
@@ -142,7 +142,7 @@ class Url(NoDynamicAttributes):
                 f"StarsSystem type expected, '{type(ssystem)}' received",
                 TypeError,
                 self.__class__.__name__,
-                inspect.currentframe(),
+                currentframe(),
             )
         url: str = self.system_url(ssystem)
         if not url:
