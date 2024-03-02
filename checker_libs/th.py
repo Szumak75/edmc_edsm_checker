@@ -113,7 +113,7 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
                                 "requirepermit" in item.data
                                 and item.data["requirepermit"]
                             ):
-                                out = f"Permint {out}"
+                                out = f"Permit {out}"
                             self.status.set(f"{item.name} - {out}")
 
                     else:

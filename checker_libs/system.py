@@ -18,6 +18,7 @@ from typing import Union, Optional, List, Dict, Any
 from distutils.spawn import find_executable
 from logging.handlers import RotatingFileHandler
 from queue import Queue, SimpleQueue
+
 from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
 
@@ -30,31 +31,31 @@ class Clip(NoDynamicAttributes):
 
     def __init__(self) -> None:
         """Create instance of class."""
-        setcb = None
-        getcb = None
+        set_cb = None
+        get_cb = None
         if os.name == "nt" or platform.system() == "Windows":
             import ctypes
 
-            getcb = self.__win_get_clipboard
-            setcb = self.__win_set_clipboard
+            get_cb = self.__win_get_clipboard
+            set_cb = self.__win_set_clipboard
         elif os.name == "mac" or platform.system() == "Darwin":
-            getcb = self.__mac_get_clipboard
-            setcb = self.__mac_set_clipboard
+            get_cb = self.__mac_get_clipboard
+            set_cb = self.__mac_set_clipboard
         elif os.name == "posix" or platform.system() == "Linux":
-            xclipExists = os.system("which xclip > /dev/null") == 0
-            if xclipExists:
-                getcb = self.__xclip_get_clipboard
-                setcb = self.__xclip_set_clipboard
+            xclip_exists = os.system("which xclip > /dev/null") == 0
+            if xclip_exists:
+                get_cb = self.__xclip_get_clipboard
+                set_cb = self.__xclip_set_clipboard
             else:
-                xselExists = os.system("which xsel > /dev/null") == 0
-                if xselExists:
-                    getcb = self.__xsel_get_clipboard
-                    setcb = self.__xsel_set_clipboard
+                xsel_exists = os.system("which xsel > /dev/null") == 0
+                if xsel_exists:
+                    get_cb = self.__xsel_get_clipboard
+                    set_cb = self.__xsel_set_clipboard
                 try:
                     import gtk
 
-                    getcb = self.__gtk_get_clipboard
-                    setcb = self.__gtk_set_clipboard
+                    get_cb = self.__gtk_get_clipboard
+                    set_cb = self.__gtk_set_clipboard
                 except Exception:
                     try:
                         import PyQt4.QtCore
@@ -62,8 +63,8 @@ class Clip(NoDynamicAttributes):
 
                         app = PyQt4.QApplication([])
                         cb = PyQt4.QtGui.QApplication.clipboard()
-                        getcb = self.__qt_get_clipboard
-                        setcb = self.__qt_set_clipboard
+                        get_cb = self.__qt_get_clipboard
+                        set_cb = self.__qt_set_clipboard
                     except:
                         print(
                             Raise.message(
@@ -72,8 +73,8 @@ class Clip(NoDynamicAttributes):
                                 inspect.currentframe(),
                             )
                         )
-        self.__copy = setcb
-        self.__paste = getcb
+        self.__copy = set_cb
+        self.__paste = get_cb
 
     @property
     def is_tool(self):
@@ -348,15 +349,15 @@ class LogProcessor(NoDynamicAttributes):
         self.__engine = logging.getLogger(self.__name)
         self.__engine.setLevel(LogLevels().debug)
 
-        hlog = RotatingFileHandler(
+        log_handler = RotatingFileHandler(
             filename=os.path.join(Env().tmpdir, f"{self.__name}.log"),
             maxBytes=100000,
             backupCount=5,
         )
 
-        hlog.setLevel(self.loglevel)
-        hlog.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
-        self.__engine.addHandler(hlog)
+        log_handler.setLevel(self.loglevel)
+        log_handler.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
+        self.__engine.addHandler(log_handler)
         self.__engine.info("Logger initialization complete")
 
     def close(self) -> None:
