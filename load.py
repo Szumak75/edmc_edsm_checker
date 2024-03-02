@@ -74,7 +74,7 @@ def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, tk.Label]:
         [
             f"{checker_object.pluginname} v{checker_object.version}",
             "",
-            "Check EDSM database information\nabout jumt target.",
+            "Check EDSM database information\nabout jump target.",
         ],
     )
 
