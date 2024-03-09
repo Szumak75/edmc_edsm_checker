@@ -25,12 +25,12 @@ class BLogProcessor(NoDynamicAttributes):
     __thread_logger: Thread = None  # type: ignore
 
     @property
-    def thlog(self) -> Thread:
+    def th_log(self) -> Thread:
         """Give me thread logger handler."""
         return self.__thread_logger
 
-    @thlog.setter
-    def thlog(self, value: Thread) -> None:
+    @th_log.setter
+    def th_log(self, value: Thread) -> None:
         self.__thread_logger = value
 
     @property

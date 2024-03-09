@@ -29,7 +29,7 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
         # data
 
         self.pluginname = "EDSM Checker"
-        self.version = "1.0.0"
+        self.version = "1.0.1-dev"
 
         # logging subsystem
         self.qlog = SimpleQueue()
@@ -37,9 +37,11 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
         self.logger = LogClient(self.qlog)
 
         # logging thread
-        self.thlog = Thread(target=self.th_logger, name=f"{self.pluginname} log worker")
-        self.thlog.daemon = True
-        self.thlog.start()
+        self.th_log = Thread(
+            target=self.th_logger, name=f"{self.pluginname} log worker"
+        )
+        self.th_log.daemon = True
+        self.th_log.start()
 
         self.logger.debug = f"{self.pluginname} object creation complete."
 

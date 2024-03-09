@@ -53,7 +53,7 @@ def plugin_stop() -> None:
         checker_object._search.quit()
         checker_object._search.join()
     checker_object.qlog.put(None)
-    checker_object.thlog.join()
+    checker_object.th_log.join()
 
 
 def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, tk.Label]:
