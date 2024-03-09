@@ -14,10 +14,8 @@ from typing import Optional, Union, Dict, Any
 from queue import Empty, Queue, SimpleQueue
 from inspect import currentframe
 
-from theme import theme
 
 from jsktoolbox.libs.base_th import ThBaseObject
-from jsktoolbox.libs.base_data import BData
 from jsktoolbox.raisetool import Raise
 from jsktoolbox.attribtool import ReadOnlyClass
 

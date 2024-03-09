@@ -6,24 +6,15 @@
   Purpose: tools classes.
 """
 
-import copy
 from inspect import currentframe
 import json
-import random
-from itertools import permutations
-from operator import itemgetter
-from queue import Queue, SimpleQueue
-from sys import maxsize
-from types import FrameType
-from typing import Dict, Optional, List, Tuple, Union, Any
+from typing import Dict, Optional, Any
 from jsktoolbox.attribtool import NoDynamicAttributes
 from jsktoolbox.raisetool import Raise
 
 import requests
 from requests.utils import requote_uri
-from checker_libs.base_log import BLogClient
 from checker_libs.stars import StarsSystem
-from checker_libs.system import LogClient
 
 
 class Url(NoDynamicAttributes):

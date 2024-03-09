@@ -8,7 +8,7 @@ Created on 04 jan 2023.
 
 from queue import SimpleQueue, Queue
 from threading import Thread
-from typing import Union, Any
+from typing import Union
 from jsktoolbox.attribtool import NoDynamicAttributes
 
 from checker_libs.system import LogClient, LogProcessor

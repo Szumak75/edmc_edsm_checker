@@ -9,13 +9,11 @@
 
 import logging
 import tkinter as tk
-from tkinter import ttk
 from typing import Any, Dict, Optional, Tuple
 
 from jsktoolbox.tktool.widgets import CreateToolTip
 
 from config import config
-from theme import theme
 
 from checker_libs.system import LogLevels
 from checker_libs.checker import Checker
