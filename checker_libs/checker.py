@@ -29,7 +29,7 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
         # data
 
         self.plugin_name = "EDSM Checker"
-        self.version = "1.0.2"
+        self.version = "1.0.2-dev"
 
         # logging subsystem
         self.qlog = SimpleQueue()
