@@ -27,27 +27,29 @@ def plugin_start3(plugin_dir: str) -> str:
     plugin_dir:     plugin directory
     return:         local name of the plugin
     """
-    checker_object.logger.debug = f"{checker_object.pluginname}->plugin_start3 start..."
+    checker_object.logger.debug = (
+        f"{checker_object.plugin_name}->plugin_start3 start..."
+    )
     # loglevel set from config
     loglevel: Optional[int] = LogLevels().get(config.get_str("loglevel"))
     checker_object.log_processor.loglevel = (
         loglevel if loglevel is not None else logging.DEBUG
     )
-    checker_object.logger.debug = f"{checker_object.pluginname}->plugin_start3 done."
-    return f"{checker_object.pluginname}"
+    checker_object.logger.debug = f"{checker_object.plugin_name}->plugin_start3 done."
+    return f"{checker_object.plugin_name}"
 
 
 def plugin_stop() -> None:
     """Stop plugin if EDMC is closing."""
-    checker_object.logger.debug = f"{checker_object.pluginname}->plugin_stop: start..."
+    checker_object.logger.debug = f"{checker_object.plugin_name}->plugin_stop: start..."
     checker_object.shutting_down = True
     checker_object.logger.debug = (
-        f"{checker_object.pluginname}->plugin_stop: shut down flag is set"
+        f"{checker_object.plugin_name}->plugin_stop: shut down flag is set"
     )
     # something to do
     # shut down logger at last
     checker_object.logger.debug = (
-        f"{checker_object.pluginname}->plugin_stop: terminating the logger"
+        f"{checker_object.plugin_name}->plugin_stop: terminating the logger"
     )
     if checker_object._search:
         checker_object._search.quit()
@@ -61,7 +63,7 @@ def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, tk.Label]:
 
     parent:     The root EDMarketConnector window
     """
-    checker_object.logger.debug = f"{checker_object.pluginname}->plugin_app: start..."
+    checker_object.logger.debug = f"{checker_object.plugin_name}->plugin_app: start..."
     # add button to main frame
     label = tk.Label(
         parent,
@@ -70,7 +72,7 @@ def plugin_app(parent: tk.Frame) -> Tuple[tk.Label, tk.Label]:
     CreateToolTip(
         label,
         [
-            f"{checker_object.pluginname} v{checker_object.version}",
+            f"{checker_object.plugin_name} v{checker_object.version}",
             "",
             "Check EDSM database information\nabout jump target.",
         ],
@@ -90,14 +92,14 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     is_beta:    If the game is currently a beta version
     """
     checker_object.logger.debug = (
-        f"{checker_object.pluginname}->prefs_changed: start..."
+        f"{checker_object.plugin_name}->prefs_changed: start..."
     )
     # set loglevel after config update
     loglevel: Optional[int] = LogLevels().get(config.get_str("loglevel"))
     checker_object.log_processor.loglevel = (
         loglevel if loglevel is not None else logging.DEBUG
     )
-    checker_object.logger.debug = f"{checker_object.pluginname}->prefs_changed: done."
+    checker_object.logger.debug = f"{checker_object.plugin_name}->prefs_changed: done."
 
 
 def journal_entry(
@@ -118,25 +120,25 @@ def journal_entry(
     state:      More info about the commander, their ship, and their cargo
     """
     checker_object.logger.debug = (
-        f"{checker_object.pluginname}->journal_entry: start..."
+        f"{checker_object.plugin_name}->journal_entry: start..."
     )
     # new
     if entry["event"] == "FSDTarget":
-        checker_object.jumpsystem.name = entry.get(
-            "Name", checker_object.jumpsystem.name
+        checker_object.jump_system.name = entry.get(
+            "Name", checker_object.jump_system.name
         )
-        checker_object.jumpsystem.address = entry.get(
-            "SystemAddress", checker_object.jumpsystem.address
+        checker_object.jump_system.address = entry.get(
+            "SystemAddress", checker_object.jump_system.address
         )
-        checker_object.jumpsystem.star_class = entry.get(
-            "StarClass", checker_object.jumpsystem.star_class
+        checker_object.jump_system.star_class = entry.get(
+            "StarClass", checker_object.jump_system.star_class
         )
         checker_object.update()
     if entry["event"] == "FSDJump":
         starsystem: str = entry.get("StarSystem", "")
-        if checker_object.jumpsystem.name == starsystem:
+        if checker_object.jump_system.name == starsystem:
             checker_object.status.set("Waiting for data...")
-    checker_object.logger.debug = f"{checker_object.pluginname}->journal_entry: done."
+    checker_object.logger.debug = f"{checker_object.plugin_name}->journal_entry: done."
 
 
 # #[EOF]#######################################################################

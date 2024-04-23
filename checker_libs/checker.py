@@ -28,22 +28,22 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
         """Initialize main class."""
         # data
 
-        self.pluginname = "EDSM Checker"
-        self.version = "1.0.0"
+        self.plugin_name = "EDSM Checker"
+        self.version = "1.0.1-dev"
 
         # logging subsystem
         self.qlog = SimpleQueue()
-        self.log_processor = LogProcessor(self.pluginname)
+        self.log_processor = LogProcessor(self.plugin_name)
         self.logger = LogClient(self.qlog)
 
         # logging thread
         self.th_log = Thread(
-            target=self.th_logger, name=f"{self.pluginname} log worker"
+            target=self.th_logger, name=f"{self.plugin_name} log worker"
         )
         self.th_log.daemon = True
         self.th_log.start()
 
-        self.logger.debug = f"{self.pluginname} object creation complete."
+        self.logger.debug = f"{self.plugin_name} object creation complete."
 
     def th_logger(self) -> None:
         """Def th_logger - thread logs processor."""
@@ -56,7 +56,7 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
                 self.log_processor.send(log)
 
     def start_search_engine(self) -> None:
-        self.logger.debug = f"{self.pluginname} starting search engine..."
+        self.logger.debug = f"{self.plugin_name} starting search engine..."
         if self._search is None:
             # init search thread
             self._search = ThSearchSystem(self.qlog, self.status)
@@ -67,7 +67,7 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
     def update(self) -> None:
         if self._search:
             search: ThSearchSystem = self._search
-            search.search_queue.put(self.jumpsystem)
+            search.search_queue.put(self.jump_system)
 
 
 # #[EOF]#######################################################################
