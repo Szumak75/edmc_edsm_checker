@@ -29,7 +29,7 @@ from checker_libs.tools import Url
 class _Keys(object, metaclass=ReadOnlyClass):
     """Private Keys class."""
 
-    QSEARCH: str = "__qsearch__"
+    Q_SEARCH: str = "__q_search__"
     EXIT: str = "__exit__"
     STATUS: str = "__status__"
 
@@ -59,7 +59,7 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
         self._data[_Keys.STATUS] = status
 
         # init search queue
-        self._data[_Keys.QSEARCH] = Queue()
+        self._data[_Keys.Q_SEARCH] = Queue()
 
         # EXIT flag
         self._data[_Keys.EXIT] = False
@@ -70,7 +70,7 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
 
     @property
     def search_queue(self) -> Queue:
-        return self._data[_Keys.QSEARCH]
+        return self._data[_Keys.Q_SEARCH]
 
     def run(self) -> None:
         """Go to work."""
