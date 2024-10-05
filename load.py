@@ -11,12 +11,12 @@ import logging
 import tkinter as tk
 from typing import Any, Dict, Optional, Tuple
 
-from jsktoolbox.tktool.widgets import CreateToolTip
+from checker.jsktoolbox.tktool.widgets import CreateToolTip
 
 from config import config
 
-from checker_libs.system import LogLevels
-from checker_libs.checker import Checker
+from checker.system import LogLevels
+from checker.checker import Checker
 
 checker_object = Checker()
 
