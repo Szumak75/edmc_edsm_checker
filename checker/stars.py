@@ -18,13 +18,6 @@ from checker.keys import CheckerKeys
 class StarsSystem(BData):
     """StarsSystem container class."""
 
-    # __name: Optional[str] = None
-    # __address: Optional[int] = None
-    # __pos_x: Optional[float] = None
-    # __pos_y: Optional[float] = None
-    # __pos_z: Optional[float] = None
-    # __data: Optional[Dict[str, Any]] = None
-
     def __init__(
         self,
         name: Optional[str] = None,

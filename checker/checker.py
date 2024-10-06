@@ -8,7 +8,8 @@
 """
 
 from typing import Optional
-
+import threading
+import time
 
 from checker.base_log import BLogClient, BLogProcessor
 from checker.base_data import BCheckerData
@@ -59,11 +60,11 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
         self.logger.debug = f"{self.plugin_name} starting search engine..."
         if self._search is None:
             # init search thread
-            self._search = ThSearchSystem(self.qlog, self.status)
-            search: Optional[ThSearchSystem] = self._search
-            print(f"########################{search}")
+            search = ThSearchSystem(self.qlog, self.status)
+            print(search.name)
             if search:
                 search.start()
+                self._search = search
 
     def update(self) -> None:
         if self._search:

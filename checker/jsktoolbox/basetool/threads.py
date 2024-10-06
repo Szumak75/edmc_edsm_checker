@@ -9,7 +9,7 @@
 
 from io import TextIOWrapper
 from types import FunctionType
-from typing import Any, Optional, Tuple, Dict
+from typing import Any, Callable, Optional, Tuple, Dict
 from threading import Event
 
 from .data import BData
@@ -46,20 +46,18 @@ class ThBaseObject(BData):
     """
 
     @property
-    def _target(self) -> Optional[Any]:
-        return self._get_data(
-            key=_Keys.TARGET, set_default_type=Optional[Any], default_value=None
-        )
+    def _target(self) -> Optional[Callable]:
+        return self._get_data(key=_Keys.TARGET, default_value=None)
 
     @_target.setter
-    def _target(self, value: Any) -> None:
-        self._set_data(key=_Keys.TARGET, value=value, set_default_type=Optional[Any])
+    def _target(self, value: Optional[Callable]) -> None:
+        self._set_data(
+            key=_Keys.TARGET, value=value, set_default_type=Optional[Callable]
+        )
 
     @property
     def _name(self) -> Optional[str]:
-        return self._get_data(
-            key=_Keys.NAME, set_default_type=Optional[str], default_value=None
-        )
+        return self._get_data(key=_Keys.NAME, default_value=None)
 
     @_name.setter
     def _name(self, value: Optional[str]) -> None:
@@ -67,49 +65,39 @@ class ThBaseObject(BData):
 
     @property
     def _args(self) -> Optional[Tuple]:
-        return self._get_data(
-            key=_Keys.ARGS, set_default_type=Optional[Tuple], default_value=None
-        )
+        return self._get_data(key=_Keys.ARGS, default_value=None)
 
     @_args.setter
     def _args(self, value: Tuple) -> None:
-        self._set_data(key=_Keys.ARGS, value=value, set_default_type=Optional[Tuple])
+        self._set_data(key=_Keys.ARGS, value=value, set_default_type=Tuple)
 
     @property
     def _kwargs(self) -> Optional[Dict]:
-        return self._get_data(
-            key=_Keys.KWARGS, set_default_type=Optional[Dict], default_value=None
-        )
+        return self._get_data(key=_Keys.KWARGS, default_value=None)
 
     @_kwargs.setter
     def _kwargs(self, value: Dict) -> None:
-        self._set_data(key=_Keys.KWARGS, value=value, set_default_type=Optional[Dict])
+        self._set_data(key=_Keys.KWARGS, value=value, set_default_type=Dict)
 
     @property
     def _daemonic(self) -> Optional[bool]:
-        return self._get_data(
-            key=_Keys.DAEMONIC, set_default_type=Optional[bool], default_value=None
-        )
+        return self._get_data(key=_Keys.DAEMONIC, default_value=None)
 
     @_daemonic.setter
     def _daemonic(self, value: bool) -> None:
-        self._set_data(key=_Keys.DAEMONIC, value=value, set_default_type=Optional[bool])
+        self._set_data(key=_Keys.DAEMONIC, value=value, set_default_type=bool)
 
     @property
     def _debug(self) -> Optional[bool]:
-        return self._get_data(
-            key=_Keys.DEBUG, set_default_type=Optional[bool], default_value=None
-        )
+        return self._get_data(key=_Keys.DEBUG, default_value=None)
 
     @_debug.setter
     def _debug(self, value: bool) -> None:
-        self._set_data(key=_Keys.DEBUG, value=value, set_default_type=Optional[bool])
+        self._set_data(key=_Keys.DEBUG, value=value, set_default_type=bool)
 
     @property
     def _ident(self) -> Optional[int]:
-        return self._get_data(
-            key=_Keys.IDENT, set_default_type=Optional[int], default_value=None
-        )
+        return self._get_data(key=_Keys.IDENT, default_value=None)
 
     @_ident.setter
     def _ident(self, value: Optional[int]) -> None:
@@ -117,9 +105,7 @@ class ThBaseObject(BData):
 
     @property
     def _native_id(self) -> Optional[int]:
-        return self._get_data(
-            key=_Keys.NATIVE_ID, set_default_type=Optional[int], default_value=None
-        )
+        return self._get_data(key=_Keys.NATIVE_ID, default_value=None)
 
     @_native_id.setter
     def _native_id(self, value: Optional[int]) -> None:
@@ -127,9 +113,7 @@ class ThBaseObject(BData):
 
     @property
     def _tstate_lock(self) -> Optional[Any]:
-        return self._get_data(
-            key=_Keys.TSTATE_LOCK, set_default_type=Optional[Any], default_value=None
-        )
+        return self._get_data(key=_Keys.TSTATE_LOCK, default_value=None)
 
     @_tstate_lock.setter
     def _tstate_lock(self, value: Any) -> None:
@@ -139,45 +123,35 @@ class ThBaseObject(BData):
 
     @property
     def _started(self) -> Optional[Event]:
-        return self._get_data(
-            key=_Keys.STARTED, set_default_type=Optional[Event], default_value=None
-        )
+        return self._get_data(key=_Keys.STARTED, default_value=None)
 
     @_started.setter
     def _started(self, value: Event) -> None:
-        self._set_data(key=_Keys.STARTED, value=value, set_default_type=Optional[Event])
+        self._set_data(key=_Keys.STARTED, value=value, set_default_type=Event)
 
     @property
     def _is_stopped(self) -> Optional[bool]:
-        return self._get_data(
-            key=_Keys.IS_STOPPED, set_default_type=Optional[bool], default_value=None
-        )
+        return self._get_data(key=_Keys.IS_STOPPED, default_value=None)
 
     @_is_stopped.setter
     def _is_stopped(self, value: bool) -> None:
-        self._set_data(
-            key=_Keys.IS_STOPPED, value=value, set_default_type=Optional[bool]
-        )
+        self._set_data(key=_Keys.IS_STOPPED, value=value, set_default_type=bool)
 
     @property
     def _stderr(self) -> Optional[TextIOWrapper]:
         return self._get_data(
             key=_Keys.STDERR,
-            set_default_type=Optional[TextIOWrapper],
             default_value=None,
         )
 
     @_stderr.setter
     def _stderr(self, value: Optional[TextIOWrapper]) -> None:
-        self._set_data(
-            key=_Keys.STDERR, value=value, set_default_type=Optional[TextIOWrapper]
-        )
+        self._set_data(key=_Keys.STDERR, value=value, set_default_type=TextIOWrapper)
 
     @property
     def _invoke_excepthook(self) -> Optional[FunctionType]:
         return self._get_data(
             key=_Keys.INVOKE_EXCEPTHOOK,
-            set_default_type=Optional[FunctionType],
             default_value=None,
         )
 
@@ -186,18 +160,16 @@ class ThBaseObject(BData):
         self._set_data(
             key=_Keys.INVOKE_EXCEPTHOOK,
             value=value,
-            set_default_type=Optional[FunctionType],
+            set_default_type=FunctionType,
         )
 
     @property
     def _stop_event(self) -> Optional[Event]:
-        return self._get_data(
-            key=_Keys.STOP_EVENT, set_default_type=Optional[Event], default_value=None
-        )
+        return self._get_data(key=_Keys.STOP_EVENT, default_value=None)
 
     @_stop_event.setter
     def _stop_event(self, obj: Event) -> None:
-        self._set_data(key=_Keys.STOP_EVENT, value=obj, set_default_type=None)
+        self._set_data(key=_Keys.STOP_EVENT, value=obj, set_default_type=Event)
 
     @property
     def is_stopped(self) -> Optional[bool]:
@@ -212,14 +184,14 @@ class ThBaseObject(BData):
     @property
     def sleep_period(self) -> float:
         """Return sleep period value."""
-        return self._get_data(
-            key=_Keys.SLEEP_PERIOD, set_default_type=float, default_value=1.0
-        )  # type: ignore
+        return self._get_data(key=_Keys.SLEEP_PERIOD, default_value=1.0)  # type: ignore
 
     @sleep_period.setter
     def sleep_period(self, value: float) -> None:
         """Set sleep period value."""
-        self._set_data(key=_Keys.SLEEP_PERIOD, value=value, set_default_type=float)
+        self._set_data(
+            key=_Keys.SLEEP_PERIOD, value=float(value), set_default_type=float
+        )
 
 
 # #[EOF]#######################################################################

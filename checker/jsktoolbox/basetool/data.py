@@ -109,7 +109,7 @@ class BData(BClasses):
                     self._data[key] = value
                 else:
                     raise Raise.error(
-                        f"The type of the value does not match the type passed in the 'set_default_type' variable",
+                        f"The type of the value: '{type(value)}' does not match the type passed in the 'set_default_type': '{set_default_type}' variable",
                         TypeError,
                         self._c_name,
                         currentframe(),

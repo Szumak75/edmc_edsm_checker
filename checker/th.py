@@ -42,7 +42,7 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
         log_queue: Union[Queue, SimpleQueue],
         status: tk.StringVar,
     ) -> None:
-        Thread.__init__(self, name=self._c_name)
+        Thread.__init__(self, name=self._c_name, daemon=True)
         self._stop_event = Event()
 
         # init log subsystem
