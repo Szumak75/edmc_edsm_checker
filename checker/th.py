@@ -15,7 +15,7 @@ from queue import Empty, Queue, SimpleQueue
 from inspect import currentframe
 
 
-from checker.jsktoolbox.libs.base_th import ThBaseObject
+from checker.jsktoolbox.basetool.threads import ThBaseObject
 from checker.jsktoolbox.raisetool import Raise
 from checker.jsktoolbox.attribtool import ReadOnlyClass
 
@@ -46,31 +46,28 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
         self._stop_event = Event()
 
         # init log subsystem
-        if not isinstance(log_queue, (Queue, SimpleQueue)):
-            raise Raise.error(
-                f"Expected Queue or SimpleQueue type, received '{type(log_queue)}'",
-                TypeError,
-                self._c_name,
-                currentframe(),
-            )
         self.logger = LogClient(log_queue)
 
         # status
-        self._data[_Keys.STATUS] = status
+        self._set_data(key=_Keys.STATUS, value=status, set_default_type=tk.StringVar)
 
         # init search queue
-        self._data[_Keys.Q_SEARCH] = Queue()
+        self._set_data(key=_Keys.Q_SEARCH, value=Queue(), set_default_type=Queue)
 
         # EXIT flag
-        self._data[_Keys.EXIT] = False
+        self._set_data(key=_Keys.EXIT, value=False, set_default_type=bool)
 
     @property
     def status(self) -> tk.StringVar:
-        return self._data[_Keys.STATUS]
+        return self._get_data(
+            key=_Keys.STATUS,
+        )  # type: ignore
 
     @property
     def search_queue(self) -> Queue:
-        return self._data[_Keys.Q_SEARCH]
+        return self._get_data(
+            key=_Keys.Q_SEARCH,
+        )  # type: ignore
 
     def run(self) -> None:
         """Go to work."""
@@ -79,7 +76,7 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
 
         self.logger.debug = f"{self._c_name} start"
 
-        while not self._data[_Keys.EXIT]:
+        while not self._get_data(key=_Keys.EXIT):
             try:
                 item: StarsSystem = self.search_queue.get_nowait()
                 # processing
@@ -124,7 +121,7 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
 
     def quit(self) -> None:
         """Set exit flag."""
-        self._data[_Keys.EXIT] = True
+        self._set_data(key=_Keys.EXIT, value=True)
 
 
 # #[EOF]#######################################################################

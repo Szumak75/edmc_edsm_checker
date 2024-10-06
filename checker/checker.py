@@ -61,6 +61,7 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
             # init search thread
             self._search = ThSearchSystem(self.qlog, self.status)
             search: Optional[ThSearchSystem] = self._search
+            print(f"########################{search}")
             if search:
                 search.start()
 

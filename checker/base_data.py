@@ -13,7 +13,7 @@ from inspect import currentframe
 from typing import Optional
 
 from checker.keys import CheckerKeys
-from checker.jsktoolbox.libs.base_data import BData
+from checker.jsktoolbox.basetool.data import BData
 from checker.jsktoolbox.raisetool import Raise
 
 from checker.stars import StarsSystem
