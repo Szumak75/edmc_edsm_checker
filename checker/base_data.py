@@ -9,14 +9,12 @@
 
 import tkinter as tk
 
-from inspect import currentframe
 from typing import Optional
 
 from checker.keys import CheckerKeys
 from checker.jsktoolbox.basetool.data import BData
-from checker.jsktoolbox.raisetool import Raise
+from checker.jsktoolbox.edmctool.stars import StarsSystem
 
-from checker.stars import StarsSystem
 from checker.th import ThSearchSystem
 
 

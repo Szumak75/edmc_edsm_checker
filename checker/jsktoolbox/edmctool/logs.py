@@ -1,85 +1,50 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 """
-  Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 18.12.2023
-
-  Purpose:
+  logs.py
+  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+  Created: 7.10.2024, 14:25:00
+  
+  Purpose: EDMC plugins individual logging subsystem classes.
 """
 
-import ctypes
 from inspect import currentframe
 import logging
 import os
-import platform
-import subprocess
-import sys
-import tempfile
 from typing import Union, Optional, List, Dict
 from logging.handlers import RotatingFileHandler
 from queue import Queue, SimpleQueue
 
-from checker.jsktoolbox.attribtool import NoDynamicAttributes
-from checker.jsktoolbox.basetool.data import BData
-from checker.jsktoolbox.raisetool import Raise
-from checker.jsktoolbox.tktool.tools import ClipBoard as Clip
-from checker.jsktoolbox.systemtool import Env
+from ..edmctool.system import EnvLocal
 
-from checker.keys import CheckerKeys
+from ..attribtool import ReadOnlyClass, NoDynamicAttributes
+from ..basetool.data import BData
+from ..raisetool import Raise
 
 
-class Directory(BData):
-    """Container class to store the directory path."""
+class _Keys(object, metaclass=ReadOnlyClass):
+    """Internal Keys container class."""
 
-    def is_directory(self, path_string: str) -> bool:
-        """Check if the given string is a directory.
-
-        path_string: str        path string to check
-        return:      bool       True, if exists and is directory,
-                                False in the other case.
-        """
-        return os.path.exists(path_string) and os.path.isdir(path_string)
-
-    @property
-    def dir(self) -> str:
-        """Property that returns directory string."""
-        return self._get_data(key=CheckerKeys.DIR, default_value="")  # type: ignore
-
-    @dir.setter
-    def dir(self, arg: str) -> None:
-        """Setter for directory string.
-
-        given path must exists.
-        """
-        if self.is_directory(arg):
-            self._set_data(key=CheckerKeys.DIR, value=arg, set_default_type=str)
-
-
-class EnvLocal(Env):
-    """Environmental class."""
-
-    def __init__(self) -> None:
-        """Initialize Env class."""
-        super().__init__()
-
-    def check_dir(self, directory: str) -> str:
-        """Check if dir exists, return dir or else HOME."""
-        if not Directory().is_directory(directory):
-            return self.home
-        return directory
+    LOG_DATA: str = "__logger_data__"
+    LOG_LEVEL: str = "__logger_level__"
+    LOG_QUEUE: str = "__logger_queue__"
+    LP_ENGINE: str = "__log_processor_engine__"
+    LP_NAME: str = "__log_processor_name__"
 
 
 class Log(BData):
     """Create Log container class."""
 
-    __data: List[str] = None  # type: ignore
-    __level: int = None  # type: ignore
-
-    def __init__(self, level) -> None:
+    def __init__(self, level: int) -> None:
         """Class constructor."""
-        self.__data = []
+        # init data list
+        self._set_data(key=_Keys.LOG_DATA, value=[], set_default_type=List)
+
+        # init default loglevel
         ll_test = LogLevels()
+        self._set_data(key=_Keys.LOG_LEVEL, value=ll_test.debug, set_default_type=int)
+
         if isinstance(level, int) and ll_test.has_key(level):
-            self.__level = level
+            self._set_data(key=_Keys.LOG_LEVEL, value=level)
         else:
             raise Raise.error(
                 f"Int type level expected, '{type(level)}' received.",
@@ -91,38 +56,40 @@ class Log(BData):
     @property
     def loglevel(self) -> int:
         """Return loglevel."""
-        return self.__level
+        return self._get_data(key=_Keys.LOG_LEVEL)  # type: ignore
 
     @property
     def log(self) -> List[str]:
         """Get list of logs."""
-        return self.__data
+        return self._get_data(
+            key=_Keys.LOG_DATA,
+        )  # type: ignore
 
     @log.setter
     def log(self, arg: Optional[Union[List, str]]) -> None:
         """Set data log."""
         if arg is None or (isinstance(arg, List) and not bool(arg)):
-            self.__data = []
+            # cleanup list of logs
+            self._set_data(
+                key=_Keys.LOG_DATA,
+                value=[],
+            )
         if isinstance(arg, List):
             for msg in arg:
-                self.__data.append(f"{msg}")
+                self.log.append(f"{msg}")
         elif arg is None:
             pass
         else:
-            self.__data.append(f"{arg}")
+            self.log.append(f"{arg}")
 
 
-class LogProcessor(NoDynamicAttributes):
+class LogProcessor(BData):
     """Log processor access API."""
-
-    __name: str = None  # type: ignore
-    __engine: logging.Logger = None  # type: ignore
-    __loglevel: int = None  # type: ignore
 
     def __init__(self, name: str) -> None:
         """Create instance class object for processing single message."""
         # name of app
-        self.__name = name
+        self._set_data(key=_Keys.LP_NAME, value=name, set_default_type=str)
         self.loglevel = LogLevels().notset
         self.__logger_init()
 
@@ -130,15 +97,27 @@ class LogProcessor(NoDynamicAttributes):
         """Destroy log instance."""
         self.close()
 
+    @property
+    def __engine(self) -> logging.Logger:
+        """Return logger instance."""
+        return self._get_data(key=_Keys.LP_ENGINE)  # type: ignore
+
+    @__engine.setter
+    def __engine(self, arg: logging.Logger) -> None:
+        """Sets engine instance."""
+        self._set_data(key=_Keys.LP_ENGINE, value=arg, set_default_type=logging.Logger)
+
     def __logger_init(self) -> None:
         """Initialize logger engine."""
         self.close()
 
-        self.__engine = logging.getLogger(self.__name)
+        self.__engine = logging.getLogger(self._get_data(key=_Keys.LP_NAME))
         self.__engine.setLevel(LogLevels().debug)
 
         log_handler = RotatingFileHandler(
-            filename=os.path.join(EnvLocal().tmpdir, f"{self.__name}.log"),
+            filename=os.path.join(
+                EnvLocal().tmpdir, f"{self._get_data(key=_Keys.LP_NAME)}.log"
+            ),
             maxBytes=100000,
             backupCount=5,
         )
@@ -154,10 +133,11 @@ class LogProcessor(NoDynamicAttributes):
             for handler in self.__engine.handlers:
                 handler.close()
                 self.__engine.removeHandler(handler)
-            self.__engine = None  # type: ignore
 
     def send(self, message: Log) -> None:
         """Send single message to log engine."""
+        if self.__engine is None:
+            return
         lgl = LogLevels()
         if isinstance(message, Log):
             if message.loglevel == lgl.critical:
@@ -182,32 +162,36 @@ class LogProcessor(NoDynamicAttributes):
             raise Raise.error(
                 f"Log type expected, {type(message)} received.",
                 TypeError,
-                self.__class__.__name__,
+                self._c_name,
                 currentframe(),
             )
 
     @property
     def loglevel(self) -> int:
         """Property that returns loglevel."""
-        return self.__loglevel
+        return self._get_data(
+            key=_Keys.LOG_LEVEL, default_value=LogLevels().notset
+        )  # type: ignore
 
     @loglevel.setter
     def loglevel(self, arg: int) -> None:
         """Setter for log level parameter."""
-        if self.__loglevel == arg:
+        if self.loglevel == arg:
             log = Log(LogLevels().debug)
             log.log = "LogLevel has not changed"
             self.send(log)
             return
         ll_test = LogLevels()
         if isinstance(arg, int) and ll_test.has_key(arg):
-            self.__loglevel = arg
+            self._set_data(key=_Keys.LOG_LEVEL, value=arg, set_default_type=int)
         else:
             tmp = "Unable to set LogLevel to {}, defaulted to INFO"
             log = Log(LogLevels().warning)
             log.log = tmp.format(arg)
             self.send(log)
-            self.__loglevel = LogLevels().info
+            self._set_data(
+                key=_Keys.LOG_LEVEL, value=LogLevels().info, set_default_type=int
+            )
         self.__logger_init()
 
 
@@ -217,7 +201,7 @@ class LogClient(BData):
     def __init__(self, queue: Union[Queue, SimpleQueue]) -> None:
         """Create instance class object."""
         self._set_data(
-            key=CheckerKeys.LOG_QUEUE,
+            key=_Keys.LOG_QUEUE,
             value=queue,
             set_default_type=Union[Queue, SimpleQueue],
         )
@@ -226,7 +210,7 @@ class LogClient(BData):
     def queue(self) -> Union[Queue, SimpleQueue]:
         """Give me queue object."""
         return self._get_data(
-            key=CheckerKeys.LOG_QUEUE,
+            key=_Keys.LOG_QUEUE,
         )  # type: ignore
 
     @property

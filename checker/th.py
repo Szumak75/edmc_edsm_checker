@@ -12,17 +12,15 @@ import tkinter as tk
 
 from typing import Optional, Union, Dict, Any
 from queue import Empty, Queue, SimpleQueue
-from inspect import currentframe
 
 
 from checker.jsktoolbox.basetool.threads import ThBaseObject
-from checker.jsktoolbox.raisetool import Raise
 from checker.jsktoolbox.attribtool import ReadOnlyClass
 
 from threading import Event, Thread
-from checker.base_log import BLogClient
-from checker.stars import StarsSystem
-from checker.system import LogClient
+from checker.jsktoolbox.edmctool.base import BLogClient
+from checker.jsktoolbox.edmctool.stars import StarsSystem
+from checker.jsktoolbox.edmctool.logs import LogClient
 from checker.tools import Url
 
 

@@ -8,9 +8,11 @@
 """
 
 from io import TextIOWrapper
+from time import sleep
 from types import FunctionType
 from typing import Any, Callable, Optional, Tuple, Dict
 from threading import Event
+from _thread import LockType
 
 from .data import BData
 from ..attribtool import ReadOnlyClass
@@ -112,13 +114,13 @@ class ThBaseObject(BData):
         self._set_data(key=_Keys.NATIVE_ID, value=value, set_default_type=Optional[int])
 
     @property
-    def _tstate_lock(self) -> Optional[Any]:
+    def _tstate_lock(self) -> Optional[LockType]:
         return self._get_data(key=_Keys.TSTATE_LOCK, default_value=None)
 
     @_tstate_lock.setter
     def _tstate_lock(self, value: Any) -> None:
         self._set_data(
-            key=_Keys.TSTATE_LOCK, value=value, set_default_type=Optional[Any]
+            key=_Keys.TSTATE_LOCK, value=value, set_default_type=Optional[LockType]
         )
 
     @property
@@ -192,6 +194,17 @@ class ThBaseObject(BData):
         self._set_data(
             key=_Keys.SLEEP_PERIOD, value=float(value), set_default_type=float
         )
+
+    def _sleep(self, sleep_period: Optional[float] = None) -> None:
+        """Sleep the thread."""
+        if sleep_period is None:
+            sleep_period = self.sleep_period
+        sleep(sleep_period)
+
+    def stop(self) -> None:
+        """Stop the thread."""
+        if self._stop_event:
+            self._stop_event.set()
 
 
 # #[EOF]#######################################################################

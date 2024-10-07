@@ -79,31 +79,46 @@ class Timestamp(NoNewAttributes):
     """Timestamp class for getting current timestamp."""
 
     @classmethod
-    def now(cls) -> int:
-        """Return current timestamp as int."""
-        return int(time())
+    def now(
+        cls, returned_type: Union[type[int], type[float]] = int
+    ) -> Union[int, float]:
+        """Return current timestamp as int or float."""
+        if returned_type not in (int, float):
+            raise Raise.error(
+                f"Expected int or float type, received: '{returned_type}'.",
+                TypeError,
+                cls.__qualname__,
+                currentframe(),
+            )
+        if returned_type == int:
+            return int(time())
+        return time()
 
     @classmethod
-    def now_int(cls) -> int:
-        """Return current timestamp as int."""
-        return int(time())
-
-    @classmethod
-    def now_float(cls) -> float:
-        """Return current timestamp as float."""
-        return float(time())
-
-    @classmethod
-    def from_string(cls, date_string: str, format: str) -> int:
+    def from_string(
+        cls,
+        date_string: str,
+        format: str,
+        returned_type: Union[type[int], type[float]] = int,
+    ) -> Union[int, float]:
         """Returns timestamp from string in strptime format.
 
         ### Arguments
         * date_string [str] - date/time string to parse,
         * format [str] - string with date/time format, for example: '%Y-%m-%d'
+        * return_type [int or float] - type of returned timestamp.
 
         ### Returns
-        timestamp as int
+        timestamp as int or float
         """
+        if returned_type not in (int, float):
+            raise Raise.error(
+                f"Expected int or float type, received: '{returned_type}'.",
+                TypeError,
+                cls.__qualname__,
+                currentframe(),
+            )
+        
         try:
             element: datetime = datetime.strptime(date_string, format)
         except ValueError as ex:
@@ -111,27 +126,9 @@ class Timestamp(NoNewAttributes):
         except Exception as ex:
             raise ex
 
-        return int(datetime.timestamp(element))
-
-    @classmethod
-    def from_string_float(cls, date_string: str, format: str) -> float:
-        """Returns timestamp from string in strptime format.
-
-        ### Arguments
-        * date_string [str] - date/time string to parse,
-        * format [str] - string with date/time format, for example: '%Y-%m-%d'
-
-        ### Returns
-        timestamp as float
-        """
-        try:
-            element: datetime = datetime.strptime(date_string, format)
-        except ValueError as ex:
-            raise Raise.error(f"{ex}", ValueError, cls.__qualname__, currentframe())
-        except Exception as ex:
-            raise ex
-
-        return float(datetime.timestamp(element))
+        if returned_type == int:
+            return int(datetime.timestamp(element))
+        return datetime.timestamp(element)
 
 
 # #[EOF]#######################################################################

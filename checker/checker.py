@@ -7,13 +7,10 @@
   Purpose: 
 """
 
-from typing import Optional
-import threading
-import time
 
-from checker.base_log import BLogClient, BLogProcessor
+from checker.jsktoolbox.edmctool.base import BLogClient, BLogProcessor
 from checker.base_data import BCheckerData
-from checker.system import LogClient, LogProcessor
+from checker.jsktoolbox.edmctool.logs import LogClient, LogProcessor
 
 
 from queue import SimpleQueue

@@ -12,10 +12,10 @@ from typing import Dict, Optional, Any
 
 from checker.jsktoolbox.attribtool import NoDynamicAttributes
 from checker.jsktoolbox.raisetool import Raise
+from checker.jsktoolbox.edmctool.stars import StarsSystem
 
 import requests
 from requests.utils import requote_uri
-from checker.stars import StarsSystem
 
 
 class Url(NoDynamicAttributes):
