@@ -22,22 +22,5 @@ class CheckerKeys(object, metaclass=ReadOnlyClass):
     TH_SEARCH: str = "__search__"
     VERSION: str = "_ver_"
 
-    # base logs
-    LOGGER: str = "__logger__"
-    LOG_PROCESSOR: str = "__logs_processor__"
-    LOG_QUEUE: str = "__logger_queue__"
-    TH_LOGGER: str = "__th_logger__"
-
-    # stars system
-    SS_NAME: str = "__ss_name__"
-    SS_ADDRESS: str = "__ss_address__"
-    SS_POS_X: str = "__ss_pos_x__"
-    SS_POS_Y: str = "__ss_pos_y__"
-    SS_POS_Z: str = "__ss_pos_z__"
-    SS_DATA: str = "__ss_data__"
-
-    # SYSTEM
-    DIR: str = "__dir__"
-
 
 # #[EOF]#######################################################################

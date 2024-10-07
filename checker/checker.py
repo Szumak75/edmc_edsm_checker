@@ -9,8 +9,8 @@
 
 
 from checker.jsktoolbox.edmctool.base import BLogClient, BLogProcessor
-from checker.base_data import BCheckerData
 from checker.jsktoolbox.edmctool.logs import LogClient, LogProcessor
+from checker.base_data import BCheckerData
 
 
 from queue import SimpleQueue

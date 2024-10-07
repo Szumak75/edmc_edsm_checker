@@ -9,6 +9,7 @@
     ],
     "python.analysis.typeCheckingMode": "basic",
     "cSpell.words": [
-        "edmctool"
+        "edmctool",
+        "prefs"
     ]
 }

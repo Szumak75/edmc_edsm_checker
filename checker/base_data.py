@@ -11,10 +11,10 @@ import tkinter as tk
 
 from typing import Optional
 
-from checker.keys import CheckerKeys
 from checker.jsktoolbox.basetool.data import BData
 from checker.jsktoolbox.edmctool.stars import StarsSystem
 
+from checker.keys import CheckerKeys
 from checker.th import ThSearchSystem
 
 
