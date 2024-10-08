@@ -22,7 +22,7 @@ from checker.jsktoolbox.edmctool.base import BLogClient
 from checker.jsktoolbox.edmctool.stars import StarsSystem
 from checker.jsktoolbox.edmctool.logs import LogClient
 from checker.jsktoolbox.edmctool.edsm import Url
-
+from checker.jsktoolbox.edmctool.edsm_keys import EdsmKeys
 
 class _Keys(object, metaclass=ReadOnlyClass):
     """Private Keys class."""
@@ -91,20 +91,18 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
                             item.update_from_edsm(bodies)
                             self.logger.debug = f"system information: {item}"
                             out: str = ""
-                            if "bodycount" in item.data and "bodies" in item.data:
-                                out = (
-                                    f'[{item.data["bodies"]}/{item.data["bodycount"]}]'
-                                )
+                            if EdsmKeys.BODY_COUNT in item.data and EdsmKeys.BODIES in item.data:
+                                out = f"[{item.data[EdsmKeys.BODIES]}/{item.data[EdsmKeys.BODY_COUNT]}]"
                             else:
                                 out = "[??/??]"
-                            if "coordslocked" in item.data:
-                                if item.data["coordslocked"]:
+                            if EdsmKeys.COORDS_LOCKED in item.data:
+                                if item.data[EdsmKeys.COORDS_LOCKED]:
                                     out = f"Lock {out}"
                                 else:
                                     out = f"Unlock {out}"
                             if (
-                                "requirepermit" in item.data
-                                and item.data["requirepermit"]
+                                EdsmKeys.REQUIRE_PERMIT in item.data
+                                and item.data[EdsmKeys.REQUIRE_PERMIT]
                             ):
                                 out = f"Permit {out}"
                             self.status.set(f"{item.name} - {out}")

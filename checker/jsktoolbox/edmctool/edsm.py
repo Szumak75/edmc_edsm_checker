@@ -11,7 +11,7 @@ import requests  # type: ignore
 import json
 import json
 
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Union
 from requests.utils import requote_uri  # type: ignore
 from inspect import currentframe
 
@@ -191,7 +191,7 @@ class Url(BData):
             print(ex)
         return None
 
-    def url_query(self, url: str) -> List[Dict[str, Any]]:
+    def url_query(self, url: str) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
         """Returns result of query for url."""
         out = []
         if not url:
