@@ -16,24 +16,6 @@ from ..basetool.data import BData
 from .edsm_keys import EdsmKeys
 
 
-class EdmcKeys(object, metaclass=ReadOnlyClass):
-    """EDMC Keys container class."""
-
-    EDMC_EVENT: str = "event"
-    EDMC_FSD_JUMP: str = "FSDJump"
-    EDMC_FSD_TARGET: str = "FSDTarget"
-    EDMC_NAME: str = "Name"
-    EDMC_STAR_CLASS: str = "StarClass"
-    EDMC_STAR_SYSTEM: str = "StarSystem"
-    EDMC_SYSTEM_ADDRESS: str = "SystemAddress"
-    EDMC_SYSTEM_BODY: str = "SystemBody"
-    EDMC_SYSTEM_BODY_COUNT: str = "SystemBodyCount"
-    EDMC_SYSTEM_COORDS: str = "SystemCoords"
-    EDMC_SYSTEM_COORDS_LOCKED: str = "SystemCoordsLocked"
-    EDMC_SYSTEM_DISTANCE: str = "SystemDistance"
-    EDMC_SYSTEM_NAME: str = "SystemName"
-
-
 class _Keys(object, metaclass=ReadOnlyClass):
     """Internal Keys container class."""
 
@@ -118,34 +100,40 @@ class StarsSystem(BData):
         self._set_data(key=_Keys.SS_NAME, value=arg, set_default_type=Optional[str])
 
     @property
-    def pos_x(self) -> Optional[float]:
+    def pos_x(self) -> Optional[Union[float, int]]:
         """Returns pos_x of the star system."""
         return self._get_data(key=_Keys.SS_POS_X, default_value=None)
 
     @pos_x.setter
-    def pos_x(self, arg: Optional[float]) -> None:
+    def pos_x(self, arg: Optional[Union[float, int]]) -> None:
         """Sets pos_x of the star system."""
-        self._set_data(key=_Keys.SS_POS_X, value=arg, set_default_type=Optional[float])
+        self._set_data(
+            key=_Keys.SS_POS_X, value=arg, set_default_type=Optional[Union[float, int]]
+        )
 
     @property
-    def pos_y(self) -> Optional[float]:
+    def pos_y(self) -> Optional[Union[float, int]]:
         """Returns pos_y of the star system."""
         return self._get_data(key=_Keys.SS_POS_Y, default_value=None)
 
     @pos_y.setter
-    def pos_y(self, arg: Optional[float]) -> None:
+    def pos_y(self, arg: Optional[Union[float, int]]) -> None:
         """Sets pos_y of the star system."""
-        self._set_data(key=_Keys.SS_POS_Y, value=arg, set_default_type=Optional[float])
+        self._set_data(
+            key=_Keys.SS_POS_Y, value=arg, set_default_type=Optional[Union[float, int]]
+        )
 
     @property
-    def pos_z(self) -> Optional[float]:
+    def pos_z(self) -> Optional[Union[float, int]]:
         """Returns pos_z of the star system."""
         return self._get_data(key=_Keys.SS_POS_Z, default_value=None)
 
     @pos_z.setter
-    def pos_z(self, arg: Optional[float]) -> None:
+    def pos_z(self, arg: Optional[Union[float, int]]) -> None:
         """Sets pos_z of the star system."""
-        self._set_data(key=_Keys.SS_POS_Z, value=arg, set_default_type=Optional[float])
+        self._set_data(
+            key=_Keys.SS_POS_Z, value=arg, set_default_type=Optional[Union[float, int]]
+        )
 
     @property
     def star_class(self) -> str:
@@ -189,11 +177,11 @@ class StarsSystem(BData):
             self.pos_y = data[EdsmKeys.COORDS].get(EdsmKeys.Y, self.pos_y)
             self.pos_z = data[EdsmKeys.COORDS].get(EdsmKeys.Z, self.pos_z)
         if EdsmKeys.BODY_COUNT in data:
-            self.data[EdsmKeys.BODY_COUNT.lower()] = data[EdsmKeys.BODY_COUNT]
+            self.data[EdsmKeys.BODY_COUNT] = data[EdsmKeys.BODY_COUNT]
         if EdsmKeys.COORDS_LOCKED in data:
-            self.data[EdsmKeys.COORDS_LOCKED.lower()] = data[EdsmKeys.COORDS_LOCKED]
+            self.data[EdsmKeys.COORDS_LOCKED] = data[EdsmKeys.COORDS_LOCKED]
         if EdsmKeys.REQUIRE_PERMIT in data:
-            self.data[EdsmKeys.REQUIRE_PERMIT.lower()] = data[EdsmKeys.REQUIRE_PERMIT]
+            self.data[EdsmKeys.REQUIRE_PERMIT] = data[EdsmKeys.REQUIRE_PERMIT]
         if EdsmKeys.DISTANCE in data:
             self.data[EdsmKeys.DISTANCE] = data[EdsmKeys.DISTANCE]
         if EdsmKeys.BODIES in data:
