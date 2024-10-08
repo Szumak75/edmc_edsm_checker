@@ -21,7 +21,7 @@ from threading import Event, Thread
 from checker.jsktoolbox.edmctool.base import BLogClient
 from checker.jsktoolbox.edmctool.stars import StarsSystem
 from checker.jsktoolbox.edmctool.logs import LogClient
-from checker.tools import Url
+from checker.jsktoolbox.edmctool.edsm import Url
 
 
 class _Keys(object, metaclass=ReadOnlyClass):
@@ -86,8 +86,8 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
                         item.update_from_edsm(system)
                         query: str = url.bodies_url(item)
                         # self.logger.debug = f"url: {query}"
-                        bodies: Dict[str, Any] = url.url_query(query)
-                        if bodies:
+                        bodies = url.url_query(query)
+                        if bodies and isinstance(bodies, Dict):
                             item.update_from_edsm(bodies)
                             self.logger.debug = f"system information: {item}"
                             out: str = ""

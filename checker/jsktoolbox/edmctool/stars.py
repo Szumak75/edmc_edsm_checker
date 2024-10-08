@@ -13,7 +13,7 @@ from typing import Optional, List, Dict, Union, Any
 from ..attribtool import ReadOnlyClass
 from ..raisetool import Raise
 from ..basetool.data import BData
-from .edsm import EdsmKeys
+from .edsm_keys import EdsmKeys
 
 
 class EdmcKeys(object, metaclass=ReadOnlyClass):
