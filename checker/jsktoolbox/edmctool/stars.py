@@ -13,6 +13,7 @@ from typing import Optional, List, Dict, Union, Any
 from ..attribtool import ReadOnlyClass
 from ..raisetool import Raise
 from ..basetool.data import BData
+from .edsm import EdsmKeys
 
 
 class EdmcKeys(object, metaclass=ReadOnlyClass):
@@ -35,19 +36,6 @@ class EdmcKeys(object, metaclass=ReadOnlyClass):
 
 class _Keys(object, metaclass=ReadOnlyClass):
     """Internal Keys container class."""
-
-    # EDSM keys
-    EDSM_ADDRESS: str = "id64"
-    EDSM_BODIES: str = "bodies"
-    EDSM_BODY_COUNT: str = "bodyCount"
-    EDSM_COORDS: str = "coords"
-    EDSM_COORDS_LOCKED: str = "coordsLocked"
-    EDSM_DISTANCE: str = "distance"
-    EDSM_NAME: str = "name"
-    EDSM_REQUIRE_PERMIT: str = "requirePermit"
-    EDSM_X: str = "x"
-    EDSM_Y: str = "y"
-    EDSM_Z: str = "z"
 
     # StarsSystem
     SS_ADDRESS: str = "__ss_address__"
@@ -194,24 +182,22 @@ class StarsSystem(BData):
         if data is None or not isinstance(data, Dict):
             return
 
-        self.name = data.get(_Keys.EDSM_NAME, self.name)
-        self.address = data.get(_Keys.EDSM_ADDRESS, self.address)
-        if _Keys.EDSM_COORDS in data and _Keys.EDSM_X in data[_Keys.EDSM_COORDS]:
-            self.pos_x = data[_Keys.EDSM_COORDS].get(_Keys.EDSM_X, self.pos_x)
-            self.pos_y = data[_Keys.EDSM_COORDS].get(_Keys.EDSM_Y, self.pos_y)
-            self.pos_z = data[_Keys.EDSM_COORDS].get(_Keys.EDSM_Z, self.pos_z)
-        if _Keys.EDSM_BODY_COUNT in data:
-            self.data[_Keys.EDSM_BODY_COUNT.lower()] = data[_Keys.EDSM_BODY_COUNT]
-        if _Keys.EDSM_COORDS_LOCKED in data:
-            self.data[_Keys.EDSM_COORDS_LOCKED.lower()] = data[_Keys.EDSM_COORDS_LOCKED]
-        if _Keys.EDSM_REQUIRE_PERMIT in data:
-            self.data[_Keys.EDSM_REQUIRE_PERMIT.lower()] = data[
-                _Keys.EDSM_REQUIRE_PERMIT
-            ]
-        if _Keys.EDSM_DISTANCE in data:
-            self.data[_Keys.EDSM_DISTANCE] = data[_Keys.EDSM_DISTANCE]
-        if _Keys.EDSM_BODIES in data:
-            self.data[_Keys.EDSM_BODIES] = len(data[_Keys.EDSM_BODIES])
+        self.name = data.get(EdsmKeys.NAME, self.name)
+        self.address = data.get(EdsmKeys.ID64, self.address)
+        if EdsmKeys.COORDS in data and EdsmKeys.X in data[EdsmKeys.COORDS]:
+            self.pos_x = data[EdsmKeys.COORDS].get(EdsmKeys.X, self.pos_x)
+            self.pos_y = data[EdsmKeys.COORDS].get(EdsmKeys.Y, self.pos_y)
+            self.pos_z = data[EdsmKeys.COORDS].get(EdsmKeys.Z, self.pos_z)
+        if EdsmKeys.BODY_COUNT in data:
+            self.data[EdsmKeys.BODY_COUNT.lower()] = data[EdsmKeys.BODY_COUNT]
+        if EdsmKeys.COORDS_LOCKED in data:
+            self.data[EdsmKeys.COORDS_LOCKED.lower()] = data[EdsmKeys.COORDS_LOCKED]
+        if EdsmKeys.REQUIRE_PERMIT in data:
+            self.data[EdsmKeys.REQUIRE_PERMIT.lower()] = data[EdsmKeys.REQUIRE_PERMIT]
+        if EdsmKeys.DISTANCE in data:
+            self.data[EdsmKeys.DISTANCE] = data[EdsmKeys.DISTANCE]
+        if EdsmKeys.BODIES in data:
+            self.data[EdsmKeys.BODIES] = len(data[EdsmKeys.BODIES])
 
 
 # #[EOF]#######################################################################
