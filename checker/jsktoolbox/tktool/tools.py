@@ -12,6 +12,7 @@ import os, platform
 
 from inspect import currentframe
 from typing import Any, Callable, Optional
+from types import MethodType
 
 from ..basetool.data import BData
 from ..attribtool import ReadOnlyClass
@@ -76,8 +77,12 @@ class ClipBoard(BData):
                                 currentframe(),
                             )
                         )
-        self._set_data(key=_Keys.COPY, value=set_cb, set_default_type=Optional[Any])
-        self._set_data(key=_Keys.PASTE, value=get_cb, set_default_type=Optional[Any])
+        self._set_data(
+            key=_Keys.COPY, value=set_cb, set_default_type=Optional[MethodType]
+        )
+        self._set_data(
+            key=_Keys.PASTE, value=get_cb, set_default_type=Optional[MethodType]
+        )
 
     @property
     def is_tool(self) -> bool:
