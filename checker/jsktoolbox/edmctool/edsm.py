@@ -96,14 +96,10 @@ class Url(BData):
                 currentframe(),
             )
 
-        if s_system.address:
-            return requote_uri(
-                f"{self.__system_url}bodies?systemId={s_system.address}{self.options}"
-            )
         if s_system.name:
-            return requote_uri(
-                f"{self.__system_url}bodies?systemName={s_system.name}{self.options}"
-            )
+            return requote_uri(f"{self.__system_url}bodies?systemName={s_system.name}")
+        if s_system.address:
+            return requote_uri(f"{self.__system_url}bodies?systemId={s_system.address}")
         return ""
 
     def system_url(self, s_system: StarsSystem) -> str:
