@@ -24,6 +24,7 @@ from checker.jsktoolbox.edmctool.logs import LogClient
 from checker.jsktoolbox.edmctool.edsm import Url
 from checker.jsktoolbox.edmctool.edsm_keys import EdsmKeys
 
+
 class _Keys(object, metaclass=ReadOnlyClass):
     """Private Keys class."""
 
@@ -80,18 +81,21 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
                 # processing
                 if item and item.name:
                     system: Optional[Dict[str, Any]] = url.system_query(item)
-                    # self.logger.debug = f"{self._c_name}: {system}"
+                    self.logger.debug = f"{self._c_name}: {system}"
                     if system:
                         self.status.set("")
                         item.update_from_edsm(system)
                         query: str = url.bodies_url(item)
-                        # self.logger.debug = f"url: {query}"
+                        self.logger.debug = f"url: {query}"
                         bodies = url.url_query(query)
                         if bodies and isinstance(bodies, Dict):
                             item.update_from_edsm(bodies)
                             self.logger.debug = f"system information: {item}"
                             out: str = ""
-                            if EdsmKeys.BODY_COUNT in item.data and EdsmKeys.BODIES in item.data:
+                            if (
+                                EdsmKeys.BODY_COUNT in item.data
+                                and EdsmKeys.BODIES in item.data
+                            ):
                                 out = f"[{item.data[EdsmKeys.BODIES]}/{item.data[EdsmKeys.BODY_COUNT]}]"
                             else:
                                 out = "[??/??]"
@@ -105,6 +109,7 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
                                 and item.data[EdsmKeys.REQUIRE_PERMIT]
                             ):
                                 out = f"Permit {out}"
+                                self.logger.debug = f"OUT: {out}"
                             self.status.set(f"{item.name} - {out}")
 
                     else:
