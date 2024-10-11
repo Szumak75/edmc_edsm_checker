@@ -85,12 +85,12 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
                 # processing
                 if item and item.name:
                     system: Optional[Dict[str, Any]] = url.system_query(item)
-                    # self.logger.debug = f"{self._c_name}: {system}"
+                    self.logger.debug = f"{self._c_name}: {system}"
                     if system:
                         self.status.set("")
                         item.update_from_edsm(system)
                         query: str = url.bodies_url(item)
-                        # self.logger.debug = f"url: {query}"
+                        self.logger.debug = f"url: {query}"
                         bodies: Dict[str, Any] = url.url_query(query)
                         if bodies:
                             item.update_from_edsm(bodies)
@@ -112,6 +112,7 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
                                 and item.data["requirepermit"]
                             ):
                                 out = f"Permit {out}"
+                            self.logger.debug = f"OUT: {out}"
                             self.status.set(f"{item.name} - {out}")
 
                     else:
