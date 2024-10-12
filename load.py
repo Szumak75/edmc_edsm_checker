@@ -16,7 +16,7 @@ from checker.jsktoolbox.tktool.widgets import CreateToolTip
 from config import config
 
 from checker.jsktoolbox.edmctool.logs import LogLevels
-from checker.jsktoolbox.edmctool.edmc_keys import EdmcKeys
+from checker.jsktoolbox.edmctool.ed_keys import EDKeys
 from checker.checker import Checker
 
 checker_object = Checker()
@@ -124,19 +124,19 @@ def journal_entry(
         f"{checker_object.plugin_name}->journal_entry: start..."
     )
     # new
-    if entry[EdmcKeys.EVENT] == EdmcKeys.FSD_TARGET:
+    if entry[EDKeys.EVENT] == EDKeys.FSD_TARGET:
         checker_object.jump_system.name = entry.get(
-            EdmcKeys.NAME, checker_object.jump_system.name
+            EDKeys.NAME, checker_object.jump_system.name
         )
         checker_object.jump_system.address = entry.get(
-            EdmcKeys.SYSTEM_ADDRESS, checker_object.jump_system.address
+            EDKeys.SYSTEM_ADDRESS, checker_object.jump_system.address
         )
         checker_object.jump_system.star_class = entry.get(
-            EdmcKeys.STAR_CLASS, checker_object.jump_system.star_class
+            EDKeys.STAR_CLASS, checker_object.jump_system.star_class
         )
         checker_object.update()
-    if entry[EdmcKeys.EVENT] == EdmcKeys.FSD_JUMP:
-        star_system: str = entry.get(EdmcKeys.STAR_SYSTEM, "")
+    if entry[EDKeys.EVENT] == EDKeys.FSD_JUMP:
+        star_system: str = entry.get(EDKeys.STAR_SYSTEM, "")
         if checker_object.jump_system.name == star_system:
             checker_object.status.set("Waiting for data...")
     checker_object.logger.debug = f"{checker_object.plugin_name}->journal_entry: done."
