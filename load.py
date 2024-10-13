@@ -11,12 +11,13 @@ import logging
 import tkinter as tk
 from typing import Any, Dict, Optional, Tuple
 
-from jsktoolbox.tktool.widgets import CreateToolTip
+from checker.jsktoolbox.tktool.widgets import CreateToolTip
 
 from config import config
 
-from checker_libs.system import LogLevels
-from checker_libs.checker import Checker
+from checker.jsktoolbox.edmctool.logs import LogLevels
+from checker.jsktoolbox.edmctool.ed_keys import EDKeys
+from checker.checker import Checker
 
 checker_object = Checker()
 
@@ -123,20 +124,20 @@ def journal_entry(
         f"{checker_object.plugin_name}->journal_entry: start..."
     )
     # new
-    if entry["event"] == "FSDTarget":
+    if entry[EDKeys.EVENT] == EDKeys.FSD_TARGET:
         checker_object.jump_system.name = entry.get(
-            "Name", checker_object.jump_system.name
+            EDKeys.NAME, checker_object.jump_system.name
         )
         checker_object.jump_system.address = entry.get(
-            "SystemAddress", checker_object.jump_system.address
+            EDKeys.SYSTEM_ADDRESS, checker_object.jump_system.address
         )
         checker_object.jump_system.star_class = entry.get(
-            "StarClass", checker_object.jump_system.star_class
+            EDKeys.STAR_CLASS, checker_object.jump_system.star_class
         )
         checker_object.update()
-    if entry["event"] == "FSDJump":
-        starsystem: str = entry.get("StarSystem", "")
-        if checker_object.jump_system.name == starsystem:
+    if entry[EDKeys.EVENT] == EDKeys.FSD_JUMP:
+        star_system: str = entry.get(EDKeys.STAR_SYSTEM, "")
+        if checker_object.jump_system.name == star_system:
             checker_object.status.set("Waiting for data...")
     checker_object.logger.debug = f"{checker_object.plugin_name}->journal_entry: done."
 
