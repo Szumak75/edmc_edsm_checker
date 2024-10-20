@@ -135,7 +135,18 @@ def journal_entry(
             EDKeys.STAR_CLASS, checker_object.jump_system.star_class
         )
         checker_object.update()
-    if entry[EDKeys.EVENT] == EDKeys.FSD_JUMP:
+    elif entry[EDKeys.EVENT] == EDKeys.CARRIER_JUMP_REQUEST:
+        checker_object.jump_system.name = entry.get(
+            EDKeys.SYSTEM_NAME, checker_object.jump_system.name
+        )
+        checker_object.jump_system.address = entry.get(
+            EDKeys.SYSTEM_ADDRESS, checker_object.jump_system.address
+        )
+        checker_object.jump_system.star_class = entry.get(
+            EDKeys.STAR_CLASS, checker_object.jump_system.star_class
+        )
+        checker_object.update()
+    if entry[EDKeys.EVENT] in (EDKeys.FSD_JUMP, EDKeys.CARRIER_JUMP):
         star_system: str = entry.get(EDKeys.STAR_SYSTEM, "")
         if checker_object.jump_system.name == star_system:
             checker_object.status.set("Waiting for data...")
