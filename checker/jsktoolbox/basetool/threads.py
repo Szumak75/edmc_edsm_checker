@@ -167,21 +167,27 @@ class ThBaseObject(BData):
 
     @property
     def _stop_event(self) -> Optional[Event]:
+        """Return the stop event object, if set."""
         return self._get_data(key=_Keys.STOP_EVENT, default_value=None)
 
     @_stop_event.setter
     def _stop_event(self, obj: Event) -> None:
+        """Set the stop event object."""
         self._set_data(key=_Keys.STOP_EVENT, value=obj, set_default_type=Event)
 
     @property
-    def is_stopped(self) -> Optional[bool]:
-        return self._is_stopped
-
-    @property
     def started(self) -> bool:
+        """Whether the process has started."""
         if self._started is not None:
             return self._started.is_set()
         return False
+
+    @property
+    def stopped(self) -> bool:
+        """Return stop event flag."""
+        if self._stop_event:
+            return self._stop_event.is_set()
+        return True
 
     @property
     def sleep_period(self) -> float:
@@ -202,7 +208,7 @@ class ThBaseObject(BData):
         sleep(sleep_period)
 
     def stop(self) -> None:
-        """Stop the thread."""
+        """Finish the thread."""
         if self._stop_event:
             self._stop_event.set()
 
