@@ -63,7 +63,7 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
                 search.start()
                 self._search = search
 
-    def update(self) -> None:
+    def dialog_update(self) -> None:
         if self._search:
             search: ThSearchSystem = self._search
             search.search_queue.put(self.jump_system)

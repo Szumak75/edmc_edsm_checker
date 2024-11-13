@@ -96,7 +96,13 @@ class ThSearchSystem(ThBaseObject, BLogClient, Thread):
                                 EdsmKeys.BODY_COUNT in item.data
                                 and EdsmKeys.BODIES in item.data
                             ):
-                                out = f"[{item.data[EdsmKeys.BODIES]}/{item.data[EdsmKeys.BODY_COUNT]}]"
+                                bodies = item.data[EdsmKeys.BODIES]
+                                count = item.data[EdsmKeys.BODY_COUNT]
+                                if not f"{bodies}".isnumeric():
+                                    bodies = "??"
+                                if not f"{count}".isnumeric():
+                                    count = "??"
+                                out = f"[{bodies}/{count}]"
                             else:
                                 out = "[??/??]"
                             if EdsmKeys.COORDS_LOCKED in item.data:
