@@ -47,6 +47,15 @@ class _Keys(object, metaclass=ReadOnlyClass):
     TMP: str = "__tmp__"
 
 
+class _CommandKeys(object, metaclass=ReadOnlyClass):
+    """Keys definition class for command line arguments."""
+
+    DESCRIPTION: str = "description"
+    EXAMPLE: str = "example"
+    HAS_VALUE: str = "has_value"
+    SHORT: str = "short"
+
+
 class CommandLineParser(BData):
     """Parser for command line options."""
 
@@ -166,12 +175,61 @@ class CommandLineParser(BData):
             self.__config_args[_Keys.EXAMPLE_OPTS],
         ):
             out[long_arg] = {
-                "short": short_arg if short_arg != "_" else "",
-                "has_value": True if long_arg[-1] == "=" else False,
-                "description": desc_arg,
-                "example": ex_arg,
+                _CommandKeys.SHORT: short_arg if short_arg != "_" else "",
+                _CommandKeys.HAS_VALUE: True if long_arg[-1] == "=" else False,
+                _CommandKeys.DESCRIPTION: desc_arg,
+                _CommandKeys.EXAMPLE: ex_arg,
             }
         return out
+
+    def help(self) -> None:
+        """Show help information."""
+        command_conf: Dict[str, Any] = self.dump()
+        command_opts: str = ""
+        desc_opts: List = []
+        max_len: int = 0
+        opt_value: List = []
+        opt_no_value: List = []
+        # stage 1
+        for item in command_conf.keys():
+            if max_len < len(item):
+                max_len = len(item)
+            if command_conf[item][_CommandKeys.HAS_VALUE]:
+                opt_value.append(item)
+            else:
+                opt_no_value.append(item)
+        max_len += 7
+        # stage 2
+        for item in sorted(opt_no_value):
+            tmp: str = ""
+            if command_conf[item][_CommandKeys.SHORT]:
+                tmp = f"-{command_conf[item][_CommandKeys.SHORT]}|--{item} "
+            else:
+                tmp = f"--{item}    "
+            desc_opts.append(
+                f" {tmp:<{max_len}}- {command_conf[item][_CommandKeys.DESCRIPTION]}"
+            )
+            command_opts += tmp
+        # stage 3
+        for item in sorted(opt_value):
+            tmp: str = ""
+            if command_conf[item][_CommandKeys.SHORT]:
+                tmp = f"-{command_conf[item][_CommandKeys.SHORT]}|--{item}"
+            else:
+                tmp = f"--{item}   "
+            desc_opts.append(
+                f" {tmp:<{max_len}}- {command_conf[item][_CommandKeys.DESCRIPTION]}"
+            )
+            command_opts += tmp
+            if command_conf[item][_CommandKeys.EXAMPLE]:
+                command_opts += f"{command_conf[item][_CommandKeys.EXAMPLE]}"
+            command_opts += " "
+        print("###[HELP]###")
+        print(f"{sys.argv[0]} {command_opts}")
+        print(f"")
+        print("# Arguments:")
+        for item in desc_opts:
+            print(item)
 
     @property
     def args(self) -> Dict[str, Any]:

@@ -51,10 +51,17 @@ class BRouterOS(BDev, BElement):
 
     def __str__(self) -> str:
         """Returns a string representing the object."""
-        return f"{self._c_name}(path='{self.root}', elements='{self.elements}', attrib='{self.attrib}', list='{self.list}')"
+        return (
+            f"{self._c_name}"
+            f"(path='{self.root}', "
+            f"elements='{self.elements}', "
+            f"attrib='{self.attrib}', "
+            f"list='{self.list}'"
+            f")"
+        )
 
     def _add_elements(self, parent: TRouterOS, elements_dict: Dict) -> None:
-        """Add childs from configuration dict."""
+        """Add children from configuration dict."""
         if parent._ch is None:
             return None
         for key in elements_dict.keys():

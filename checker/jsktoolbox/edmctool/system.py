@@ -13,6 +13,7 @@ from ..basetool.data import BData
 from ..systemtool import Env
 from ..attribtool import ReadOnlyClass
 
+
 class _Keys(object, metaclass=ReadOnlyClass):
     """Internal Keys container class."""
 
@@ -62,7 +63,7 @@ class EnvLocal(Env):
     @property
     def plugin_dir(self) -> str:
         """Return plugin dir path."""
-        return f"{os.path.dirname(os.path.dirname(__file__))}"
+        return f"{os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))}"
 
 
 # #[EOF]#######################################################################

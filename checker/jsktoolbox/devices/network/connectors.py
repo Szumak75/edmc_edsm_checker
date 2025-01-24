@@ -82,7 +82,7 @@ class IConnector(ABC):
 
     @password.setter
     @abstractmethod
-    def password(self, password_string: str) -> None:
+    def password(self, passwd: str) -> None:
         """Set password property."""
 
     @property
