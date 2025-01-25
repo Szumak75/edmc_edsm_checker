@@ -134,7 +134,7 @@ def journal_entry(
         checker_object.jump_system.star_class = entry.get(
             EDKeys.STAR_CLASS, checker_object.jump_system.star_class
         )
-        checker_object.update()
+        checker_object.dialog_update()
     elif entry[EDKeys.EVENT] == EDKeys.CARRIER_JUMP_REQUEST:
         checker_object.jump_system.name = entry.get(
             EDKeys.SYSTEM_NAME, checker_object.jump_system.name
@@ -145,7 +145,7 @@ def journal_entry(
         checker_object.jump_system.star_class = entry.get(
             EDKeys.STAR_CLASS, checker_object.jump_system.star_class
         )
-        checker_object.update()
+        checker_object.dialog_update()
     if entry[EDKeys.EVENT] in (EDKeys.FSD_JUMP, EDKeys.CARRIER_JUMP):
         star_system: str = entry.get(EDKeys.STAR_SYSTEM, "")
         if checker_object.jump_system.name == star_system:

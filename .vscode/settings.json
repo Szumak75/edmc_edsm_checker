@@ -7,7 +7,7 @@
     "python.analysis.extraPaths": [
         "~/Projects/EDMarketConnector",
     ],
-    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.typeCheckingMode": "standard",
     "cSpell.words": [
         "edmctool",
         "prefs"
