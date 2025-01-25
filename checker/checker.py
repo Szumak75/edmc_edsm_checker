@@ -25,7 +25,6 @@ class Checker(BLogProcessor, BLogClient, BCheckerData):
     def __init__(self) -> None:
         """Initialize main class."""
         # data
-
         self.plugin_name = "EDSM Checker"
         self.version = "1.1.1"
 
