@@ -304,28 +304,6 @@ class Env(BData):
         return sys.maxsize > 2**32
 
 
-# class Env(NoDynamicAttributes):
-#     """Environment class."""
-
-#     @classmethod
-#     @property
-#     def home(cls) -> str:
-#         """Return home dir name."""
-#         tmp: Optional[str] = os.getenv("HOME")
-#         if tmp:
-#             return tmp
-#         return ""
-
-#     @classmethod
-#     @property
-#     def username(cls) -> str:
-#         """Return login name."""
-#         tmp: Optional[str] = os.getenv("USER")
-#         if tmp:
-#             return tmp
-#         return ""
-
-
 class PathChecker(BData):
     """PathChecker class for filesystem path."""
 
@@ -385,7 +363,7 @@ class PathChecker(BData):
         if self._get_data(key=_Keys.SPLIT):
             # split and analyse
             tmp: str = ""
-            tmp_list: List[PathChecker] = self._get_data(key=_Keys.LIST)  # type: ignore
+            tmp_list: List[PathChecker] = self._copy_data(key=_Keys.LIST)  # type: ignore
             for item in self.path.split(os.sep):
                 if item == "":
                     continue

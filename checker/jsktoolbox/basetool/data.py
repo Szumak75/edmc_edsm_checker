@@ -7,8 +7,10 @@
   Purpose: BData container base class.
 """
 
+import copy
+
 from inspect import currentframe
-from typing import Dict, Any, Optional
+from typing import Dict, List, Any, Optional
 
 from ..raisetool import Raise
 
@@ -45,6 +47,16 @@ class BData(BClasses):
             self._c_name,
             currentframe(),
         )
+
+    def _copy_data(self, key: str) -> Optional[Any]:
+        """Copy data from the internal dictionary.
+
+        ### Arguments:
+        * key [str] - variable name,
+        """
+        if self.__check_keys(key):
+            return copy.deepcopy(self._data[key])
+        return None
 
     def _get_data(
         self,
@@ -94,6 +106,11 @@ class BData(BClasses):
             self.__types = {}
         if self.__has_type(key):
             if isinstance(value, self.__types[key]):
+                # check if value is instance of type in [List,Dict] with type of elements
+                # then clear data set for this type for proper freeing of memory
+                # if isinstance(value, (List, Dict)):
+                #     self._clear_data(key)
+                self._clear_data(key)
                 self._data[key] = value
             else:
                 raise Raise.error(
@@ -115,6 +132,10 @@ class BData(BClasses):
                         currentframe(),
                     )
             else:
+                # data types was not set, so we can set any type
+                # if self.__check_keys(key) and isinstance(self._data[key], (List, Dict)):
+                #     self._clear_data(key)
+                self._clear_data(key)
                 self._data[key] = value
 
     def _delete_data(self, key: str) -> None:
@@ -137,6 +158,8 @@ class BData(BClasses):
         * key [str] - variable name to delete
         """
         if self.__check_keys(key):
+            if isinstance(self._data[key], (List, Dict)):
+                self._data[key].clear()
             del self._data[key]
 
     @property
