@@ -116,17 +116,28 @@ class BData(BClasses):
                     )
             else:
                 self._data[key] = value
-    
-    def _del_data(self, key:str)->None:
-        """Deletes data from internal dict.
+
+    def _delete_data(self, key: str) -> None:
+        """Delete data and data type from internal dict.
 
         ### Arguments:
         * key [str] - variable name to delete
         """
         if self.__check_keys(key):
             del self._data[key]
-            if self.__has_type(key):
-                del self.__types[key] # type: ignore
+        if self.__has_type(key):
+            del self.__types[key]  # type: ignore
+
+    def _clear_data(self, key: str) -> None:
+        """Clear data from internal dict.
+        Does not delete data type.
+        If key is not found, does nothing.
+
+        ### Arguments:
+        * key [str] - variable name to delete
+        """
+        if self.__check_keys(key):
+            del self._data[key]
 
     @property
     def _data(self) -> Dict[str, Any]:
