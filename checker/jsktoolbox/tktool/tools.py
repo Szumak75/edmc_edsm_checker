@@ -4,7 +4,7 @@
   Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
   Created: 5.10.2024, 14:26:16
   
-  Purpose: 
+  Purpose: ClipBoard tool
 """
 
 import ctypes
@@ -55,28 +55,29 @@ class ClipBoard(BData):
                 if xselExists:
                     get_cb = self.__xsel_get_clipboard
                     set_cb = self.__xsel_set_clipboard
-                try:
-                    import gtk  # type: ignore
-
-                    get_cb = self.__gtk_get_clipboard
-                    set_cb = self.__gtk_set_clipboard
-                except Exception:
+                else:
                     try:
-                        import PyQt4.QtCore  # type: ignore
-                        import PyQt4.QtGui  # type: ignore
+                        import gtk  # type: ignore
 
-                        app = PyQt4.QApplication([])
-                        cb = PyQt4.QtGui.QApplication.clipboard()
-                        get_cb = self.__qt_get_clipboard
-                        set_cb = self.__qt_set_clipboard
-                    except:
-                        print(
-                            Raise.message(
-                                "ClipBoard requires the gtk or PyQt4 module installed, or the xclip command.",
-                                self._c_name,
-                                currentframe(),
+                        get_cb = self.__gtk_get_clipboard
+                        set_cb = self.__gtk_set_clipboard
+                    except Exception:
+                        try:
+                            import PyQt4.QtCore  # type: ignore
+                            import PyQt4.QtGui  # type: ignore
+
+                            app = PyQt4.QApplication([])
+                            cb = PyQt4.QtGui.QApplication.clipboard()
+                            get_cb = self.__qt_get_clipboard
+                            set_cb = self.__qt_set_clipboard
+                        except:
+                            print(
+                                Raise.message(
+                                    "ClipBoard requires the gtk or PyQt4 module installed, or the xclip command.",
+                                    self._c_name,
+                                    currentframe(),
+                                )
                             )
-                        )
         self._set_data(
             key=_Keys.COPY, value=set_cb, set_default_type=Optional[MethodType]
         )
@@ -190,13 +191,13 @@ class ClipBoard(BData):
     def __xsel_set_clipboard(self, text: str) -> None:
         """Set xsel clipboard data."""
         text = str(text)
-        out_f: os._wrap_close = os.popen("xsel -i", "w")
+        out_f: os._wrap_close = os.popen("xsel -b -i", "w")
         out_f.write(text)
         out_f.close()
 
     def __xsel_get_clipboard(self) -> str:
         """Get xsel clipboard data."""
-        out_f: os._wrap_close = os.popen("xsel -o", "r")
+        out_f: os._wrap_close = os.popen("xsel -b -o", "r")
         content: str = out_f.read()
         out_f.close()
         return content

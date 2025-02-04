@@ -1110,8 +1110,10 @@ class AlgGenetic2(IAlg, BLogClient):
         self.__population: List[List[StarsSystem]] = []
         self.__final: List[StarsSystem] = []
 
-        self.__population_size = len(systems) * 4  # Rozmiar populacji (100)
-        self.__generations = 200  # Liczba pokoleń (500)
+        # self.__population_size = len(systems) * 4  # Rozmiar populacji (100)
+        self.__population_size = 100
+        # self.__generations = 200  # Liczba pokoleń (500)
+        self.__generations = 500
         self.__mutation_rate = 0.01  # Prawdopodobieństwo mutacji (0.01)
 
         # 1. Rozmiar populacji (population_size):
