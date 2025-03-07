@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek Kotlarski --<szumak@virthost.pl>
-  Created: 23.06.2023
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 23.06.2023
 
-  Purpose: Classes for IPv4
+Purpose: Classes for IPv4
 """
 
 import socket

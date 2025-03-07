@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-  ed.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 8.10.2024, 14:15:25
-  
-  Purpose: 
+ed.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 8.10.2024, 14:15:25
+
+Purpose:
 """
 
 

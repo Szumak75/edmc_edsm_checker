@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek Kotlarski --<szumak@virthost.pl>
-  Created: 08.12.2023
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 08.12.2023
 
-  Purpose: Query class as helper for build query elements dict.
+Purpose: Query class as helper for build query elements dict.
 """
 
 from copy import copy

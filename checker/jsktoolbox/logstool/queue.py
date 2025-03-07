@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-  queue.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 6.09.2024, 16:43:41
-  
-  Purpose: Queue for logs subsystem.
+queue.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 6.09.2024, 16:43:41
+
+Purpose: Queue for logs subsystem.
 """
 
 from typing import Optional, Tuple, List, Any

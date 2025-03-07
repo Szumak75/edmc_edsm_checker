@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 04.12.2023
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 04.12.2023
 
-  Purpose: Base classes for RouterOS
+Purpose: Base classes for RouterOS
 """
 
 from typing import Dict, List, Optional, Union, TypeVar

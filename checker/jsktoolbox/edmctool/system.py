@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-  system.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 7.10.2024, 14:25:00
-  
-  Purpose: EDMC plugins system classes.
+system.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 7.10.2024, 14:25:00
+
+Purpose: EDMC plugins system classes.
 """
 
 import os

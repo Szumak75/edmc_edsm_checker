@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 22.12.2023, 12:35:53
-  
-  Purpose: RB: /ipv6/
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 22.12.2023, 12:35:53
+
+Purpose: RB: /ipv6/
 """
 
 from typing import Dict, Optional, Any

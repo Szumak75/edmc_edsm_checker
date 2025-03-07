@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 22.12.2023, 12:37:30
-  
-  Purpose: RB: /ppp/
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 22.12.2023, 12:37:30
+
+Purpose: RB: /ppp/
 """
 
 from typing import Dict, Optional, Any

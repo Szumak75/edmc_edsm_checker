@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-  stars.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 7.10.2024, 13:39:31
-  
-  Purpose: StarsSystem container.
+stars.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 7.10.2024, 13:39:31
+
+Purpose: StarsSystem container.
 """
 
 from inspect import currentframe

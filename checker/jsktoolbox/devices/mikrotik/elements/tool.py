@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 22.12.2023, 12:40:33
-  
-  Purpose: RB: /tool/
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 22.12.2023, 12:40:33
+
+Purpose: RB: /tool/
 """
 
 from typing import Dict, Optional, Any

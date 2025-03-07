@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek Kotlarski --<szumak@virthost.pl>
-  Created: 08.12.2023
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 08.12.2023
 
-  Purpose: RB '/routing/'
+Purpose: RB '/routing/'
 """
 
 

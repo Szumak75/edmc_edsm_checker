@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 29.10.2023
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 29.10.2023
 
-  Purpose: Main class for creating and processes config files.
+Purpose: Main class for creating and processes config files.
 """
 
 import re

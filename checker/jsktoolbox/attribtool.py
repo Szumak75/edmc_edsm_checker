@@ -1,17 +1,17 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek Kotlarski --<szumak@virthost.pl>
-  Created: 02.07.2023
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 02.07.2023
 
-  Purpose: Base classes for restricting the creation of dynamic attributes
-  on instance of derived types.
+Purpose: Base classes for restricting the creation of dynamic attributes
+on instance of derived types.
 
-  [NoNewAttributes]
-  The solution idea published in: Python Cookbook (2004), A. Martelli,
-  A. Ravenscroft, D. Ascher
+[NoNewAttributes]
+The solution idea published in: Python Cookbook (2004), A. Martelli,
+A. Ravenscroft, D. Ascher
 
-  [NoDynamicAttributes]
-  Another solution with the same functionality.
+[NoDynamicAttributes]
+Another solution with the same functionality.
 """
 
 from typing import Any, Callable

@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 04.12.2023
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 04.12.2023
 
-  Purpose: Base classes.
+Purpose: Base classes.
 """
 
 from typing import Optional, TypeVar

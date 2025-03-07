@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek Kotlarski --<szumak@virthost.pl>
-  Created: 05.09.2023
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 05.09.2023
 
-  Purpose: For compatibility reasons only.
+Purpose: For compatibility reasons only.
 """
 
 import warnings

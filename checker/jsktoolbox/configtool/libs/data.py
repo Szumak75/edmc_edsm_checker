@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 29.10.2023
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 29.10.2023
 
-  Purpose: DataProcessor class for processing dataset operations.
+Purpose: DataProcessor class for processing dataset operations.
 """
 
 from inspect import currentframe

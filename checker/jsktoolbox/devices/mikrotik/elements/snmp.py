@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 22.12.2023, 12:39:52
-  
-  Purpose: RB: /snmp/
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 22.12.2023, 12:39:52
+
+Purpose: RB: /snmp/
 """
 
 from typing import Dict, Optional, Any

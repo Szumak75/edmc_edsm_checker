@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 04.11.2023
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 04.11.2023
 
-  Purpose: Logger Engine interface class.
+Purpose: Logger Engine interface class.
 """
 
 from abc import ABC, abstractmethod

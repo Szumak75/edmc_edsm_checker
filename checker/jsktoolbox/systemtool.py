@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-  systemtool.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 6.09.2024, 19:53:44
-  
-  Purpose: various classes of interaction with the system.
+systemtool.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 6.09.2024, 19:53:44
+
+Purpose: various classes of interaction with the system.
 """
 
 

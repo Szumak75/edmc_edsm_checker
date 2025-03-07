@@ -1,11 +1,11 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek Kotlarski --<szumak@virthost.pl>
-  Created: 08.05.2023
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 08.05.2023
 
-  Purpose: Raise class for formatting thrown exception messages.
-  The message can be formatted with information about the class,
-  method, and line number where the exception was thrown.
+Purpose: Raise class for formatting thrown exception messages.
+The message can be formatted with information about the class,
+method, and line number where the exception was thrown.
 """
 from types import FrameType
 from typing import Optional

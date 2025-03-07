@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek Kotlarski --<szumak@virthost.pl>
-  Created: 10.10.2023
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 10.10.2023
 
-  Purpose: logger engine classes.
+Purpose: logger engine classes.
 """
 
 import os

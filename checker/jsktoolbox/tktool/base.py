@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-  base.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 15.01.2024, 13:41:50
-  
-  Purpose: Base classes for tkinter.
+base.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 15.01.2024, 13:41:50
+
+Purpose: Base classes for tkinter.
 """
 
 from ..attribtool import NoDynamicAttributes

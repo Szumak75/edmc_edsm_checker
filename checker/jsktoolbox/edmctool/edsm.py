@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-  edsm.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 8.10.2024, 12:15:38
-  
-  Purpose: 
+edsm.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 8.10.2024, 12:15:38
+
+Purpose:
 """
 
 import requests  # type: ignore

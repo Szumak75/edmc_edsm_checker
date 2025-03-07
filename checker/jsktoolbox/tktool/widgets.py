@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-  widgets.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 15.01.2024, 10:42:01
-  
-  Purpose: custom tkinter widgets.
+widgets.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 15.01.2024, 10:42:01
 
-  VerticalScrolledFrame: https://gist.github.com/novel-yet-trivial/3eddfce704db3082e38c84664fc1fdf8
+Purpose: custom tkinter widgets.
+
+VerticalScrolledFrame: https://gist.github.com/novel-yet-trivial/3eddfce704db3082e38c84664fc1fdf8
 """
 
 
@@ -15,6 +15,72 @@ from tkinter import Toplevel, ttk
 from typing import Any, Optional, List, Tuple, Union, Dict
 
 from .base import TkBase
+
+
+class StatusBarTkFrame(tk.Frame, TkBase):
+    """Status bar widget."""
+
+    __status: tk.StringVar = None  # type: ignore
+    __status_label: tk.Label = None  # type: ignore
+    __sizegrip: ttk.Sizegrip = None  # type: ignore
+
+    def __init__(self, master: tk.Misc, *args, **kwargs) -> None:
+        tk.Frame.__init__(self, master, *args, **kwargs)
+
+        self.__status = tk.StringVar()
+        self.__status.set("Status Bar")
+        self.__status_label = tk.Label(
+            self, bd=1, relief=tk.FLAT, anchor=tk.W, textvariable=self.__status
+        )
+        self.__status_label.pack(
+            side=tk.LEFT, fill=tk.X, expand=tk.TRUE, padx=5, pady=1
+        )
+
+        # size grip
+        self.__sizegrip = ttk.Sizegrip(self)
+        self.__sizegrip.pack(side=tk.RIGHT, anchor=tk.SE)
+
+    def set(self, value: str) -> None:
+        """Set status message."""
+        self.__status.set(value)
+        self.__status_label.update_idletasks()
+
+    def clear(self) -> None:
+        """Clear status message."""
+        self.__status.set("")
+        self.__status_label.update_idletasks()
+
+
+class StatusBarTtkFrame(ttk.Frame, TkBase):
+    """Status bar widget."""
+
+    __status: tk.StringVar = None  # type: ignore
+    __status_label: ttk.Label = None  # type: ignore
+    __sizegrip: ttk.Sizegrip = None  # type: ignore
+
+    def __init__(self, master: tk.Misc, *args, **kwargs) -> None:
+        ttk.Frame.__init__(self, master, *args, **kwargs)
+
+        self.__status = tk.StringVar()
+        self.__status.set("Status Bar")
+        self.__status_label = ttk.Label(self, anchor=tk.W, textvariable=self.__status)
+        self.__status_label.pack(
+            side=tk.LEFT, fill=tk.X, expand=tk.TRUE, padx=5, pady=1
+        )
+
+        # size grip
+        self.__sizegrip = ttk.Sizegrip(self)
+        self.__sizegrip.pack(side=tk.RIGHT, anchor=tk.SE)
+
+    def set(self, value: str) -> None:
+        """Set status message."""
+        self.__status.set(value)
+        self.__status_label.update_idletasks()
+
+    def clear(self) -> None:
+        """Clear status message."""
+        self.__status.set("")
+        self.__status_label.update_idletasks()
 
 
 class CreateToolTip(TkBase):

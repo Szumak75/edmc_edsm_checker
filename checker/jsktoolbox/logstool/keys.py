@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-  keys.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 6.09.2024, 16:45:42
-  
-  Purpose: Keys definition classes for logs subsystem
+keys.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 6.09.2024, 16:45:42
+
+Purpose: Keys definition classes for logs subsystem
 """
 
 import syslog

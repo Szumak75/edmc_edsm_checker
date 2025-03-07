@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 22.12.2023, 12:38:05
-  
-  Purpose: RB: /queue/
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 22.12.2023, 12:38:05
+
+Purpose: RB: /queue/
 """
 
 from typing import Dict, Optional, Any

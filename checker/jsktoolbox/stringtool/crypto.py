@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek Kotlarski --<szumak@virthost.pl>
-  Created: 16.10.2023
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 16.10.2023
 
-  Purpose: a simple class containing basic cryptographic procedures for strings.
+Purpose: a simple class containing basic cryptographic procedures for strings.
 """
 
 import string

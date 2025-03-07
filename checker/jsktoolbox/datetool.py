@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 02.12.2023
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 02.12.2023
 
-  Purpose: Sets of classes for various date/time operations.
+Purpose: Sets of classes for various date/time operations.
 """
 
 from time import time
@@ -118,7 +118,7 @@ class Timestamp(NoNewAttributes):
                 cls.__qualname__,
                 currentframe(),
             )
-        
+
         try:
             element: datetime = datetime.strptime(date_string, format)
         except ValueError as ex:

@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek Kotlarski --<szumak@virthost.pl>
-  Created: 06.12.2023
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 06.12.2023
 
-  Purpose: RB '/ip/'
+Purpose: RB '/ip/'
 """
 
 from typing import Dict, Optional, Any

@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 10.10.2023
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 10.10.2023
 
-  Purpose: LogFormatter classes.
+Purpose: LogFormatter classes.
 """
 
 from datetime import datetime

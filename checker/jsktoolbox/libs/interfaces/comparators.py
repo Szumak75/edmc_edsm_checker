@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek Kotlarski --<szumak@virthost.pl>
-  Created: 24.06.2023
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 24.06.2023
 
-  Purpose: interfaces class.
+Purpose: interfaces class.
 """
 
 from abc import ABC, abstractmethod

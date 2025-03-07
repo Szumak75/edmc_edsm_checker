@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-  logs.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 7.10.2024, 13:39:19
-  
-  Purpose: EDMC plugins individual logging subsystem base classes.
+logs.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 7.10.2024, 13:39:19
+
+Purpose: EDMC plugins individual logging subsystem base classes.
 """
 
 from queue import SimpleQueue, Queue

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-  layout.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 15.01.2024, 13:48:01
-  
-  Purpose: Tkinter geometry managers keys helper classes.
+layout.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 15.01.2024, 13:48:01
+
+Purpose: Tkinter geometry managers keys helper classes.
 """
 
 import tkinter as tk

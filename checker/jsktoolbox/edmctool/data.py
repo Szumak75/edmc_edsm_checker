@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-  data.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 10.10.2024, 13:00:59
-  
-  Purpose: Data container classes.
+data.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 10.10.2024, 13:00:59
+
+Purpose: Data container classes.
 """
 
 from typing import Union, Optional

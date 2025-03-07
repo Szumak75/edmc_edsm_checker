@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 04.12.2023
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 04.12.2023
 
-  Purpose: module to string converting.
+Purpose: module to string converting.
 """
 
 import base64
@@ -24,9 +24,7 @@ class B64Converter(NoDynamicAttributes):
         cls, bytes64: bytes, encoding: str = "ascii", errors: str = "replace"
     ) -> str:
         """Returns decoded bytes to string."""
-        return base64.b64decode(bytes64).decode(
-            encoding=encoding, errors=errors
-        )
+        return base64.b64decode(bytes64).decode(encoding=encoding, errors=errors)
 
 
 # #[EOF]#######################################################################

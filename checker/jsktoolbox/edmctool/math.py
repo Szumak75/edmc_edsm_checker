@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-  math.py
-  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-  Created: 10.10.2024, 13:00:50
-  
-  Purpose: 
+math.py
+Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 10.10.2024, 13:00:50
+
+Purpose:
 """
 
 import math

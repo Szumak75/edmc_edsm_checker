@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 """
-  Author:  Jacek Kotlarski --<szumak@virthost.pl>
-  Created: 14.09.2023
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 14.09.2023
 
-  Purpose: Word16 class for representing IPv6 word.
+Purpose: Word16 class for representing IPv6 word.
 """
 
 from inspect import currentframe
