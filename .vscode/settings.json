@@ -2,10 +2,10 @@
     "python.terminal.launchArgs": [],
     "autoDocstring.docstringFormat": "pep257",
     "python.autoComplete.extraPaths": [
-        "~/Projects/EDMarketConnector",
+        "~/Projects/EDMC/EDMarketConnector",
     ],
     "python.analysis.extraPaths": [
-        "~/Projects/EDMarketConnector",
+        "~/Projects/EDMC/EDMarketConnector",
     ],
     "python.analysis.typeCheckingMode": "standard",
     "cSpell.words": [
