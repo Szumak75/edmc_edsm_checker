@@ -3,15 +3,11 @@
 Author:  Jacek Kotlarski --<szumak@virthost.pl>
 Created: 02.07.2023
 
-Purpose: Base classes for restricting the creation of dynamic attributes
-on instance of derived types.
+Purpose: Provide helpers that restrict adding attributes to classes and instances.
 
-[NoNewAttributes]
-The solution idea published in: Python Cookbook (2004), A. Martelli,
-A. Ravenscroft, D. Ascher
-
-[NoDynamicAttributes]
-Another solution with the same functionality.
+The module collects mixins and metaclasses that prevent accidental creation of
+new attributes at runtime. Inspired by recipes from *Python Cookbook*
+(2004, Martelli et al.).
 """
 
 from typing import Any, Callable
@@ -20,10 +16,24 @@ from typing import Any, Callable
 def _no_new_attributes(
     wrapped_setattr: Any,
 ) -> Callable[[Any, str, Any], None]:
-    """Internal function for use in the current module only."""
+    """Wrap `__setattr__` to prevent creation of unknown attributes.
+
+    ### Arguments:
+    * wrapped_setattr: Any - Original setter, e.g. `object.__setattr__` or `type.__setattr__`.
+
+    ### Returns:
+    [Callable[[Any, str, Any], None]] - Closure enforcing attribute existence before assignment.
+    """
 
     def __setattr__(self, name: str, value: Any) -> None:
-        """Check if the attribute is defined, throw an exception if not."""
+        """Delegate to the original setter when the attribute exists.
+
+        Raises AttributeError if the attribute has not been defined.
+
+        ### Arguments:
+        * name: str - Attribute name to assign.
+        * value: Any - Value destined for the attribute.
+        """
         if hasattr(self, name):
             wrapped_setattr(self, name, value)
         else:
@@ -35,10 +45,11 @@ def _no_new_attributes(
 
 
 class NoNewAttributes:
-    """NoNewAttributes - base class.
+    """Prevent instances of subclasses from gaining new attributes.
 
-    Class for restricting the creation of dynamic attributes on instances
-    of derived types.
+    ### Purpose:
+    Blocks dynamic attribute creation by overriding `__setattr__` for both
+    instances and the metaclass.
     """
 
     __setattr__: Callable[[Any, str, Any], None] = _no_new_attributes(
@@ -52,10 +63,11 @@ class NoNewAttributes:
 
 
 class NoDynamicAttributes:
-    """NoDynamicAttributes - base class.
+    """Mix-in that disallows adding attributes to class instances.
 
-    Class for restricting the creation of dynamic attributes on instances
-    of derived types.
+    ### Purpose:
+    Ensures all attributes must be declared up-front; runtime additions raise
+    AttributeError.
     """
 
     def __setattr__(self, name: str, value: Any) -> None:
@@ -67,11 +79,10 @@ class NoDynamicAttributes:
 
 
 class ReadOnlyClass(type):
-    """ReadOnlyClass - metaclass for creating read only classes.
+    """Metaclass that makes class attributes immutable after definition.
 
-    ### example:
-    class A(object, metaclass=ReadOnlyClass):
-          foo = "don't change me"
+    ### Purpose:
+    Raises AttributeError whenever class-level attributes are reassigned.
     """
 
     def __setattr__(self, name: str, value: Any) -> None:

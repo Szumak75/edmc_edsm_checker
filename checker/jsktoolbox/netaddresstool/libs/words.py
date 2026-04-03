@@ -80,13 +80,21 @@ class Word16(IComparators, BClasses, NoDynamicAttributes):
     @staticmethod
     def __is_integer(value: str) -> bool:
         try:
-            if value.find("0x") == 0:
-                int(value, 16)
-            else:
-                int(value)
+            Word16.__parse_string(value)
             return True
-        except:
+        except ValueError:
             return False
+
+    @staticmethod
+    def __parse_string(value: str) -> int:
+        """Convert decimal or hexadecimal string to int."""
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("Empty string cannot represent Word16.")
+        try:
+            return int(stripped)
+        except ValueError:
+            return int(stripped, 16)
 
     @property
     def value(self) -> int:
@@ -111,20 +119,22 @@ class Word16(IComparators, BClasses, NoDynamicAttributes):
                 )
         elif isinstance(args, str):
             if Word16.__is_integer(args):
-                if args.find("0x") == 0:
-                    var = int(args, 16)
-                else:
-                    var = int(args)
+                var = Word16.__parse_string(args)
                 if Word16.__check_range(var):
                     self.__value = var
                     return
-                else:
-                    raise Raise.error(
-                        f"Received value '{args}' out of range(0-65535).",
-                        ValueError,
-                        self._c_name,
-                        currentframe(),
-                    )
+                raise Raise.error(
+                    f"Received value '{args}' out of range(0-65535).",
+                    ValueError,
+                    self._c_name,
+                    currentframe(),
+                )
+            raise Raise.error(
+                f"Received value '{args}' is not a valid integer literal.",
+                ValueError,
+                self._c_name,
+                currentframe(),
+            )
         elif isinstance(args, Word16):
             tmp: TWord16 = args
             self.__value = tmp.value

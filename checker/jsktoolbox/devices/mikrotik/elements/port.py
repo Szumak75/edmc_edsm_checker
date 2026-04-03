@@ -53,7 +53,10 @@ class RBPort(BRouterOS):
         self.root = f"{_Elements.ROOT}/"
 
         # add elements
-        elements: Dict[str, Any] = {_Elements.FIRMWARE: {}, _Elements.REMOTE_ACCESS: {}}
+        elements: Dict[str, Any] = {
+            _Elements.FIRMWARE: {},
+            _Elements.REMOTE_ACCESS: {},
+        }
 
         # configure elements
         self._add_elements(self, elements)

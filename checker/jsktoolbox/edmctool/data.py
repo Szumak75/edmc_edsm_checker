@@ -84,6 +84,7 @@ class RscanData(BData):
     def jump_system(self, value: Optional[StarsSystem]) -> None:
         if value is None:
             self._set_data(key=_Keys.JUMP_SYSTEM, value=StarsSystem())
+            return
         self._set_data(
             key=_Keys.JUMP_SYSTEM,
             value=value,
@@ -98,6 +99,7 @@ class RscanData(BData):
     def stars_system(self, value: Optional[StarsSystem]) -> None:
         if value is None:
             self._set_data(key=_Keys.STARS_SYSTEM, value=StarsSystem())
+            return
         self._set_data(
             key=_Keys.STARS_SYSTEM,
             value=value,

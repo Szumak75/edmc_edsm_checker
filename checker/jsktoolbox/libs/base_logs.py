@@ -1,9 +1,12 @@
 # -*- coding: UTF-8 -*-
 """
 Author:  Jacek Kotlarski --<szumak@virthost.pl>
-Created: 04.09.2023
+Created: 2023-09-04
 
-Purpose: For compatibility reasons only.
+Purpose: Retain backward compatibility for legacy logging imports.
+
+This module re-exports logging helpers from the newer `jsktoolbox.basetool`
+and `jsktoolbox.logstool` packages while warning about deprecation.
 """
 
 import warnings

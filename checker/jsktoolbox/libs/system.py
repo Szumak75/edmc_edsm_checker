@@ -1,9 +1,12 @@
 # -*- coding: UTF-8 -*-
 """
 Author:  Jacek Kotlarski --<szumak@virthost.pl>
-Created: 05.09.2023
+Created: 2023-09-05
 
-Purpose: For compatibility reasons only.
+Purpose: Retain backward compatibility for legacy system-tool imports.
+
+The module re-exports objects from `jsktoolbox.systemtool` and notifies callers
+about the preferred import path.
 """
 
 import warnings

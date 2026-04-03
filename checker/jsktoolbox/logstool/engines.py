@@ -1,9 +1,12 @@
 # -*- coding: UTF-8 -*-
 """
 Author:  Jacek Kotlarski --<szumak@virthost.pl>
-Created: 10.10.2023
+Created: 2023-10-10
 
-Purpose: logger engine classes.
+Purpose: Implement logging engines targeting stdout, stderr, files, and syslog.
+
+Each engine adheres to `ILoggerEngine`, providing consistent `send` semantics
+while supporting optional formatters and buffering behaviour.
 """
 
 import os
@@ -37,7 +40,19 @@ class LoggerEngineStdout(ILoggerEngine, BLoggerEngine, BData, NoDynamicAttribute
         formatter: Optional[BLogFormatter] = None,
         buffered: bool = False,
     ) -> None:
-        """Constructor."""
+        """Initialise stdout engine state.
+
+        ### Arguments:
+        * name: Optional[str] - Optional logger name injected into formatted messages.
+        * formatter: Optional[BLogFormatter] - Formatter applied prior to emit.
+        * buffered: bool - When False, flush after each message.
+
+        ### Returns:
+        None - Constructor.
+
+        ### Raises:
+        * TypeError: Raised when `formatter` does not inherit from `BLogFormatter`.
+        """
         if name is not None:
             self.name = name
         self._data[LogKeys.BUFFERED] = buffered
@@ -54,7 +69,14 @@ class LoggerEngineStdout(ILoggerEngine, BLoggerEngine, BData, NoDynamicAttribute
                 )
 
     def send(self, message: str) -> None:
-        """Send message to STDOUT."""
+        """Write the message to stdout honoring buffering/formatting rules.
+
+        ### Arguments:
+        * message: str - Raw log payload.
+
+        ### Returns:
+        None - Output is written to stdout.
+        """
         if self._data[LogKeys.FORMATTER]:
             message = self._data[LogKeys.FORMATTER].format(message, self.name)
         sys.stdout.write(f"{message}")
@@ -73,7 +95,19 @@ class LoggerEngineStderr(ILoggerEngine, BLoggerEngine, BData, NoDynamicAttribute
         formatter: Optional[BLogFormatter] = None,
         buffered: bool = False,
     ) -> None:
-        """Constructor."""
+        """Initialise stderr engine state.
+
+        ### Arguments:
+        * name: Optional[str]
+        * formatter: Optional[BLogFormatter]
+        * buffered: bool
+
+        ### Returns:
+        None
+
+        ### Raises:
+        * TypeError: Raised when `formatter` is not a `BLogFormatter` instance.
+        """
         if name is not None:
             self.name = name
         self._data[LogKeys.BUFFERED] = buffered
@@ -90,7 +124,14 @@ class LoggerEngineStderr(ILoggerEngine, BLoggerEngine, BData, NoDynamicAttribute
                 )
 
     def send(self, message: str) -> None:
-        """Send message to STDERR."""
+        """Write the message to stderr honoring buffering/formatting rules.
+
+        ### Arguments:
+        * message: str - Raw log payload.
+
+        ### Returns:
+        None - Output is written to stderr.
+        """
         if self._data[LogKeys.FORMATTER]:
             message = self._data[LogKeys.FORMATTER].format(message, self.name)
         sys.stderr.write(f"{message}")
@@ -109,7 +150,19 @@ class LoggerEngineFile(ILoggerEngine, BLoggerEngine, BData, NoDynamicAttributes)
         formatter: Optional[BLogFormatter] = None,
         buffered: bool = False,
     ) -> None:
-        """Constructor."""
+        """Initialise file engine configuration.
+
+        ### Arguments:
+        * name: Optional[str]
+        * formatter: Optional[BLogFormatter]
+        * buffered: bool
+
+        ### Returns:
+        None
+
+        ### Raises:
+        * TypeError: Raised when `formatter` is not a `BLogFormatter` instance.
+        """
         if name is not None:
             self.name = name
         self._data[LogKeys.BUFFERED] = buffered
@@ -126,7 +179,17 @@ class LoggerEngineFile(ILoggerEngine, BLoggerEngine, BData, NoDynamicAttributes)
                 )
 
     def send(self, message: str) -> None:
-        """Send message to file."""
+        """Append the formatted message to the configured log file.
+
+        ### Arguments:
+        * message: str - Raw log payload.
+
+        ### Returns:
+        None - The file on disk is updated.
+
+        ### Raises:
+        * ValueError: Raised when `logfile` is not configured.
+        """
         if self._data[LogKeys.FORMATTER]:
             message = self._data[LogKeys.FORMATTER].format(message, self.name)
             if self.logfile is None:
@@ -144,14 +207,25 @@ class LoggerEngineFile(ILoggerEngine, BLoggerEngine, BData, NoDynamicAttributes)
 
     @property
     def logdir(self) -> Optional[str]:
-        """Return log directory."""
+        """Return configured log directory.
+
+        ### Returns:
+        Optional[str] - Directory path or None when unset.
+        """
         if LogKeys.DIR not in self._data:
             self._data[LogKeys.DIR] = None
         return self._data[LogKeys.DIR]
 
     @logdir.setter
     def logdir(self, dirname: str) -> None:
-        """Set log directory."""
+        """Set or create the log directory as required.
+
+        ### Arguments:
+        * dirname: str - Directory path used for log files.
+
+        ### Returns:
+        None - Internal state updated.
+        """
         if dirname[-1] != os.sep:
             dirname = f"{dirname}/"
         pc_ld = PathChecker(dirname)
@@ -162,14 +236,29 @@ class LoggerEngineFile(ILoggerEngine, BLoggerEngine, BData, NoDynamicAttributes)
 
     @property
     def logfile(self) -> Optional[str]:
-        """Return log file name."""
+        """Return configured log file name.
+
+        ### Returns:
+        Optional[str] - File name or None when unset.
+        """
         if LogKeys.FILE not in self._data:
             self._data[LogKeys.FILE] = None
         return self._data[LogKeys.FILE]
 
     @logfile.setter
     def logfile(self, filename: str) -> None:
-        """Set log file name."""
+        """Set log file name and ensure the path exists.
+
+        ### Arguments:
+        * filename: str - Desired log file name.
+
+        ### Returns:
+        None - File path created if necessary.
+
+        ### Raises:
+        * FileExistsError: When the path exists and is a directory.
+        * PermissionError: When the file cannot be created.
+        """
         # TODO: check procedure
         fn = None
         if self.logdir is None:
@@ -206,7 +295,19 @@ class LoggerEngineSyslog(ILoggerEngine, BLoggerEngine, BData, NoDynamicAttribute
         formatter: Optional[BLogFormatter] = None,
         buffered: bool = False,
     ) -> None:
-        """Constructor."""
+        """Initialise syslog engine configuration.
+
+        ### Arguments:
+        * name: Optional[str]
+        * formatter: Optional[BLogFormatter]
+        * buffered: bool
+
+        ### Returns:
+        None
+
+        ### Raises:
+        * TypeError: Raised when `formatter` is not a `BLogFormatter` instance.
+        """
         if name is not None:
             self.name = name
         self._data[LogKeys.BUFFERED] = buffered
@@ -234,12 +335,27 @@ class LoggerEngineSyslog(ILoggerEngine, BLoggerEngine, BData, NoDynamicAttribute
 
     @property
     def facility(self) -> int:
-        """Return syslog facility."""
+        """Return active syslog facility.
+
+        ### Returns:
+        int - Syslog facility value.
+        """
         return self._data[LogKeys.FACILITY]
 
     @facility.setter
     def facility(self, value: Union[int, str]) -> None:
-        """Set syslog facility."""
+        """Configure syslog facility.
+
+        ### Arguments:
+        * value: Union[int, str] - Facility constant or symbolic name.
+
+        ### Returns:
+        None - Resets the syslog handle to apply the new facility.
+
+        ### Raises:
+        * ValueError: When integer facility is not recognised.
+        * KeyError: When facility name is unknown.
+        """
         if isinstance(value, int):
             if value in tuple(SysLogKeys.facility_keys.values()):
                 self._data[LogKeys.FACILITY] = value
@@ -268,12 +384,27 @@ class LoggerEngineSyslog(ILoggerEngine, BLoggerEngine, BData, NoDynamicAttribute
 
     @property
     def level(self) -> int:
-        """Return syslog level."""
+        """Return active syslog level.
+
+        ### Returns:
+        int - Syslog level value.
+        """
         return self._data[LogKeys.LEVEL]
 
     @level.setter
     def level(self, value: Union[int, str]) -> None:
-        """Set syslog level."""
+        """Configure syslog level.
+
+        ### Arguments:
+        * value: Union[int, str] - Level constant or symbolic name.
+
+        ### Returns:
+        None - Resets the syslog handle to apply the new level.
+
+        ### Raises:
+        * ValueError: When integer level is not recognised.
+        * KeyError: When level name is unknown.
+        """
         if isinstance(value, int):
             if value in tuple(SysLogKeys.level_keys.values()):
                 self._data[LogKeys.LEVEL] = value
@@ -301,7 +432,14 @@ class LoggerEngineSyslog(ILoggerEngine, BLoggerEngine, BData, NoDynamicAttribute
         self._data[LogKeys.SYSLOG] = None
 
     def send(self, message: str) -> None:
-        """Send message to SYSLOG."""
+        """Emit the message to syslog.
+
+        ### Arguments:
+        * message: str - Raw log payload.
+
+        ### Returns:
+        None - Message is forwarded to syslog with configured facility/level.
+        """
         if self._data[LogKeys.FORMATTER]:
             message = self._data[LogKeys.FORMATTER].format(message, self.name)
         if self._data[LogKeys.SYSLOG] is None:

@@ -12,7 +12,8 @@ import socket
 
 from copy import deepcopy
 from inspect import currentframe
-from typing import TypeVar, Union, List
+import warnings
+from typing import Iterator, Optional, TypeVar, Union, List
 
 from ..attribtool import NoDynamicAttributes
 from ..raisetool import Raise
@@ -21,6 +22,8 @@ from ..libs.interfaces.comparators import IComparators
 from ..basetool.classes import BClasses
 
 TAddress6 = TypeVar("TAddress6", bound="Address6")
+DEFAULT_IPV6_HOST_LIMIT: int = 65536
+DEFAULT_IPV6_SUBNET_LIMIT: int = 4096
 
 
 class Address6(IComparators, BClasses, NoDynamicAttributes):
@@ -170,7 +173,7 @@ class Address6(IComparators, BClasses, NoDynamicAttributes):
             )
 
     def __int__(self) -> int:
-        """Return ipv4 representation as integer."""
+        """Return ipv6 representation as integer."""
         return self.__var_int
 
     def __str__(self) -> str:
@@ -334,7 +337,8 @@ class Network6(BClasses, NoDynamicAttributes):
     Public property:
     address: Address6 -- Return IPv6 address set in the constructor.
     count: int -- Return count hosts addresses in network range.
-    hosts: List[Address6] -- Return hosts address list.
+    hosts(limit: Optional[int] = DEFAULT_IPV6_HOST_LIMIT): List[Address6] -- Deprecated helper returning host list with an optional safety limit.
+    iter_hosts(limit: Optional[int] = DEFAULT_IPV6_HOST_LIMIT) -> Iterator[Address6] -- Lazy host iterator respecting optional limits.
     network: Address6 -- Return network address.
     prefix: Prefix6 -- Return prefix.
     max: Address6 -- Return max address of host in network range.
@@ -408,14 +412,54 @@ class Network6(BClasses, NoDynamicAttributes):
         """Return number of hosts in subnet."""
         return 2 ** (128 - int(self.prefix))
 
-    @property
-    def hosts(self) -> List[Address6]:
-        """Return list of hosts addresses."""
+    def hosts(self, limit: Optional[int] = DEFAULT_IPV6_HOST_LIMIT) -> List[Address6]:
+        """Return list of hosts addresses. (Deprecated)
+
+        ### Arguments:
+        * limit: Optional[int] - Maximum number of hosts allowed to materialise. Defaults to DEFAULT_IPV6_HOST_LIMIT.
+
+        ### Returns:
+        [List[Address6]] - Host addresses contained within the subnet.
+
+        ### Raises:
+        * ValueError: Raised when the host count exceeds the configured limit.
+        """
+        warnings.warn(
+            "Network6.hosts() is deprecated; use Network6.iter_hosts() for lazy iteration.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return list(self.iter_hosts(limit=limit))
+
+    def iter_hosts(
+        self, limit: Optional[int] = DEFAULT_IPV6_HOST_LIMIT
+    ) -> Iterator[Address6]:
+        """Yield IPv6 host addresses lazily.
+
+        ### Arguments:
+        * limit: Optional[int] - Maximum number of hosts allowed before raising. Defaults to DEFAULT_IPV6_HOST_LIMIT.
+
+        ### Returns:
+        Iterator[Address6] - Generator producing host addresses in ascending order.
+
+        ### Raises:
+        * ValueError: Raised when the host count exceeds the configured limit.
+        """
+        effective_limit = limit
+        host_count = self.count
+        if effective_limit is not None and host_count > effective_limit:
+            raise Raise.error(
+                (
+                    f"Network6 host count ({host_count}) exceeds limit "
+                    f"({effective_limit}). Use iter_hosts(limit=None) for explicit override."
+                ),
+                ValueError,
+                self._c_name,
+                currentframe(),
+            )
         start = int(self.min)
-        tmp: List[Address6] = []
-        for i in range(0, self.count):
-            tmp.append(Address6(start + i))
-        return tmp
+        for i in range(0, host_count):
+            yield Address6(start + i)
 
     @property
     def max(self) -> Address6:
@@ -436,7 +480,7 @@ class Network6(BClasses, NoDynamicAttributes):
 
     @property
     def network(self) -> Address6:
-        """Return network address (first host address of subnet)."""
+        """Return network address."""
         return self.min
 
     @property
@@ -454,7 +498,8 @@ class SubNetwork6(BClasses, NoDynamicAttributes):
     prefix: Prefix6 -- Subnet prefix.
 
     Public property:
-    subnets: List[Network6] -- Subnet list.
+    subnets(limit: Optional[int] = DEFAULT_IPV6_SUBNET_LIMIT): List[Network6] -- Deprecated helper returning subnet list with an optional safety limit.
+    iter_subnets(limit: Optional[int] = DEFAULT_IPV6_SUBNET_LIMIT) -> Iterator[Network6] -- Lazy subnet iterator.
     """
 
     __network: Network6 = None  # type: ignore
@@ -484,20 +529,63 @@ class SubNetwork6(BClasses, NoDynamicAttributes):
                 currentframe(),
             )
 
-    @property
-    def subnets(self) -> List[Network6]:
-        """Return subnets list."""
-        tmp: List[Network6] = []
+    def subnets(
+        self, limit: Optional[int] = DEFAULT_IPV6_SUBNET_LIMIT
+    ) -> List[Network6]:
+        """Return subnets list. (Deprecated)
+
+        ### Arguments:
+        * limit: Optional[int] - Maximum number of subnetworks allowed before raising. Defaults to DEFAULT_IPV6_SUBNET_LIMIT.
+
+        ### Returns:
+        [List[Network6]] - Generated IPv6 subnetworks.
+
+        ### Raises:
+        * ValueError: Raised when the subnet count exceeds the configured limit.
+        """
+        warnings.warn(
+            "SubNetwork6.subnets() is deprecated; use SubNetwork6.iter_subnets() for lazy iteration.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return list(self.iter_subnets(limit=limit))
+
+    def iter_subnets(
+        self, limit: Optional[int] = DEFAULT_IPV6_SUBNET_LIMIT
+    ) -> Iterator[Network6]:
+        """Yield IPv6 subnetworks lazily.
+
+        ### Arguments:
+        * limit: Optional[int] - Maximum number of subnetworks allowed before raising. Defaults to DEFAULT_IPV6_SUBNET_LIMIT.
+
+        ### Returns:
+        Iterator[Network6] - Generator producing IPv6 subnetworks in ascending order.
+
+        ### Raises:
+        * ValueError: Raised when the subnet count exceeds the configured limit.
+        """
+        effective_limit = limit
+        produced = 0
         net_start = int(self.__network.min)
         net_end = int(self.__network.max)
         start: int = net_start
         while True:
+            if effective_limit is not None and produced >= effective_limit:
+                raise Raise.error(
+                    (
+                        f"Subnet count exceeds limit ({effective_limit}). "
+                        "Use iter_subnets(limit=None) for explicit override."
+                    ),
+                    ValueError,
+                    self._c_name,
+                    currentframe(),
+                )
             subnet = Network6([Address6(start), self.__prefix])
-            tmp.append(subnet)
+            yield subnet
+            produced += 1
             if int(subnet.max) >= net_end:
                 break
             start = int(subnet.max) + 1
-        return tmp
 
 
 # #[EOF]#######################################################################

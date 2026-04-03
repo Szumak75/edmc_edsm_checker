@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-layout.py
-Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-Created: 15.01.2024, 13:48:01
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 2024-01-15
 
-Purpose: Tkinter geometry managers keys helper classes.
+Purpose: Provide named accessors for Tk geometry manager constants (pack, grid, place).
+
+This module centralises the most common anchor, side, fill, and sticky options so that GUI code can
+refer to Tk enumerations through read-only wrappers instead of raw tkinter symbols.
 """
 
 import tkinter as tk
@@ -13,13 +15,16 @@ from ..attribtool import ReadOnlyClass
 
 
 class Pack(object, metaclass=ReadOnlyClass):
-    """Pack geometry manager.
+    """Pack geometry manager constants.
 
-    https://www.pythontutorial.net/tkinter/tkinter-pack/
+    Groups anchors, sides, and fill modes exposed by ``tk.pack`` for consistent, read-only access.
     """
 
     class Anchor(object, metaclass=ReadOnlyClass):
-        """The anchor parameter allows you to anchor the widget to the edge of the allocated space."""
+        """Anchor values for pack placement.
+
+        Mirrors the ``anchor`` parameter accepted by the pack geometry manager.
+        """
 
         CENTER = tk.CENTER
         E = tk.E
@@ -32,7 +37,10 @@ class Pack(object, metaclass=ReadOnlyClass):
         W = tk.W
 
     class Side(object, metaclass=ReadOnlyClass):
-        """The side parameter determines the direction of the widgets in the pack layout."""
+        """Side values for pack placement.
+
+        Indicates which edge of the container a widget should hug when packed.
+        """
 
         BOTTOM = tk.BOTTOM
         LEFT = tk.LEFT
@@ -40,7 +48,10 @@ class Pack(object, metaclass=ReadOnlyClass):
         TOP = tk.TOP
 
     class Fill(object, metaclass=ReadOnlyClass):
-        """The fill determines if a widget will occupy the available space."""
+        """Fill modes for pack placement.
+
+        Controls how a widget expands along the horizontal and vertical axes.
+        """
 
         BOTH = tk.BOTH
         NONE = tk.NONE
@@ -49,13 +60,16 @@ class Pack(object, metaclass=ReadOnlyClass):
 
 
 class Grid(object, metaclass=ReadOnlyClass):
-    """Grid geometry manager.
+    """Grid geometry manager constants.
 
-    https://www.pythontutorial.net/tkinter/tkinter-grid/
+    Aggregates sticky options from ``tk.grid`` to keep UI layout code expressive.
     """
 
     class Sticky(object, metaclass=ReadOnlyClass):
-        """The sticky option specifies which edge of the cell the widget should stick to."""
+        """Sticky values for grid placement.
+
+        Specifies which cell edges a widget should adhere to when the cell grows.
+        """
 
         CENTER = tk.CENTER
         E = tk.E
@@ -69,13 +83,16 @@ class Grid(object, metaclass=ReadOnlyClass):
 
 
 class Place(object, metaclass=ReadOnlyClass):
-    """Place geometry manager.
+    """Place geometry manager constants.
 
-    https://www.pythontutorial.net/tkinter/tkinter-place/
+    Wraps commonly used ``tk.place`` anchor options inside a read-only namespace.
     """
 
     class Anchor(object, metaclass=ReadOnlyClass):
-        """The anchor parameter determines which part of the widget is positioned at the given coordinates."""
+        """Anchor values for absolute placement.
+
+        Describes which widget point maps to the x/y coordinates supplied to ``place``.
+        """
 
         CENTER = tk.CENTER
         E = tk.E

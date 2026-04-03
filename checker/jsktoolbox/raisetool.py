@@ -3,9 +3,10 @@
 Author:  Jacek Kotlarski --<szumak@virthost.pl>
 Created: 08.05.2023
 
-Purpose: Raise class for formatting thrown exception messages.
-The message can be formatted with information about the class,
-method, and line number where the exception was thrown.
+Purpose: This module provides the `Raise` class, a utility for creating
+and formatting standardized exception messages. It helps in generating
+rich, informative error messages that include details like the class name,
+method name, and line number where the error occurred, facilitating easier debugging.
 """
 from types import FrameType
 from typing import Optional
@@ -14,7 +15,12 @@ from .attribtool import NoDynamicAttributes
 
 
 class Raise(NoDynamicAttributes):
-    """Raise class for formatting thrown exception messages."""
+    """A utility class for formatting and creating exception objects.
+
+    This class contains only static methods and is not meant to be instantiated.
+    It serves as a centralized tool for generating consistent and descriptive
+    error messages and exception instances throughout a project.
+    """
 
     @classmethod
     def message(
@@ -23,15 +29,18 @@ class Raise(NoDynamicAttributes):
         class_name: str = "",
         currentframe: Optional[FrameType] = None,
     ) -> str:
-        """Message formatter method.
+        """Format a message string with contextual information.
+
+        This method constructs a detailed message string by prepending the
+        class name, method name, and line number.
 
         ### Arguments:
-        * message: str    - message to format
-        * class_name: str - caller class name (self.__class__.__name__)
-        * currentframe: FrameType - object from inspect.currentframe()
+        * message: str - The core message to be formatted.
+        * class_name: str - The name of the class from which the call is made. Defaults to "".
+        * currentframe: Optional[FrameType] - A frame object from `inspect.currentframe()`.
 
         ### Returns:
-        formatted message string
+        str - A formatted message string with contextual details.
         """
         template: str = f"{message}"
         if currentframe and isinstance(currentframe, FrameType):
@@ -52,16 +61,22 @@ class Raise(NoDynamicAttributes):
         class_name: str = "",
         currentframe: Optional[FrameType] = None,
     ) -> Exception:
-        """Returns exception with formatted string.
+        """Create an exception instance with a formatted message.
+
+        This is the primary factory method for creating standardized exceptions.
+        It validates the exception type and formats the message.
 
         ### Arguments:
-        * message: str - message to format
-        * exception: type[Exception] - custom exception to return
-        * class_name: str - caller class name (self.__class__.__name__)
-        * currentframe: FrameType - object from inspect.currentframe()
+        * message: str - The core error message.
+        * exception: type[Exception] - The exception class to be instantiated. Defaults to `Exception`.
+        * class_name: str - The name of the class where the error occurred. Defaults to "".
+        * currentframe: Optional[FrameType] - A frame object from `inspect.currentframe()`.
 
         ### Returns:
-        given exception type
+        Exception - An instance of the specified exception class.
+
+        ### Raises:
+        * TypeError: If the `exception` argument is not a class that inherits from `Exception`.
         """
         if isinstance(exception, type):
             if not isinstance(exception(), Exception):

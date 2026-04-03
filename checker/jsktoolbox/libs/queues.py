@@ -13,21 +13,24 @@ from ..raisetool import Raise
 
 
 class EmptyError(Exception):
-    """Empty exception class."""
+    """Raised when a FIFO queue is accessed while empty."""
 
 
 class Fifo(BClasses):
-    """Fifo class."""
+    """Simple FIFO queue backed by an incrementing index map."""
 
     __in: int = None  # type: ignore
     __out: int = None  # type: ignore
     __data: Dict = None  # type: ignore
 
     def __init__(self, data_list: Optional[List[Any]] = None) -> None:
-        """Constructor.
+        """Initialise the FIFO queue, optionally preloading the buffer.
 
-        ### Arguments
-        * data_list [Optional[List[Any]]] - optional list of initial dataset.
+        ### Arguments:
+        * data_list: Optional[List[Any]] - Optional iterable used to prefill the queue.
+
+        ### Returns:
+        None - Constructor.
         """
         self.__in = 0
         self.__out = 0
@@ -42,12 +45,26 @@ class Fifo(BClasses):
         return f"{self._c_name}({list(self.__data.values())})"
 
     def put(self, data: Any) -> None:
-        """Put data to queue."""
+        """Enqueue a new value.
+
+        ### Arguments:
+        * data: Any - Payload to store.
+
+        ### Returns:
+        None - Method updates internal state in place.
+        """
         self.__in += 1
         self.__data[self.__in] = data
 
     def pop(self) -> Any:
-        """Pop first item from queue."""
+        """Remove and return the oldest queued value.
+
+        ### Returns:
+        Any - The dequeued payload.
+
+        ### Raises:
+        * EmptyError: Raised when the queue is empty.
+        """
         self.__out += 1
         try:
             out: Any = self.__data.pop(self.__out)

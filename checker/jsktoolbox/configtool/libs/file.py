@@ -25,14 +25,25 @@ class _Keys(object, metaclass=ReadOnlyClass):
 
 
 class FileProcessor(BData, NoDynamicAttributes):
-    """FileProcessor class."""
+    """Handle filesystem interactions for configuration files.
+
+    ### Purpose:
+    Offers helpers to validate paths, read, and persist config data.
+    """
 
     def __init__(self) -> None:
-        """Constructor."""
+        """Initialise FileProcessor instance.
+
+        The constructor does not perform extra work but keeps parity with other mixins.
+        """
 
     @property
     def file(self) -> Optional[str]:
-        """Return config file path."""
+        """Return config file path.
+
+        ### Returns:
+        [Optional[str]] - Absolute path or None when not set.
+        """
         out: Optional[PathChecker] = self._get_data(
             key=_Keys.FILE,
         )
@@ -42,7 +53,11 @@ class FileProcessor(BData, NoDynamicAttributes):
 
     @file.setter
     def file(self, path: str) -> None:
-        """Set file name."""
+        """Set file name.
+
+        ### Arguments:
+        * path: str - Path to configuration file.
+        """
         self._set_data(
             key=_Keys.FILE,
             set_default_type=PathChecker,
@@ -51,7 +66,14 @@ class FileProcessor(BData, NoDynamicAttributes):
 
     @property
     def file_exists(self) -> bool:
-        """Check if the file exists and is a file."""
+        """Check if the file exists and is a file.
+
+        ### Returns:
+        [bool] - True when the file exists and is not a directory.
+
+        ### Raises:
+        * AttributeError: Path not configured prior to call.
+        """
         obj: Optional[PathChecker] = self._get_data(key=_Keys.FILE)
         if obj:
             return obj.exists and (obj.is_file or obj.is_symlink) and not obj.is_dir
@@ -63,7 +85,15 @@ class FileProcessor(BData, NoDynamicAttributes):
         )
 
     def file_create(self) -> bool:
-        """Try to create file."""
+        """Try to create file.
+
+        ### Returns:
+        [bool] - True when file already exists or was created.
+
+        ### Raises:
+        * AttributeError: Path not configured.
+        * OSError: Path points to an existing directory.
+        """
         if self.file_exists:
             return True
         obj: Optional[PathChecker] = self._get_data(key=_Keys.FILE)
@@ -84,7 +114,11 @@ class FileProcessor(BData, NoDynamicAttributes):
         )
 
     def read(self) -> str:
-        """Try to read config file."""
+        """Try to read config file.
+
+        ### Returns:
+        [str] - Entire file contents as a string.
+        """
         out: str = ""
         if self.file_exists:
             filepath: Optional[str] = self.file
@@ -94,7 +128,11 @@ class FileProcessor(BData, NoDynamicAttributes):
         return out
 
     def readlines(self) -> List[str]:
-        """Try to read config file and create list of strings."""
+        """Try to read config file and create list of strings.
+
+        ### Returns:
+        [List[str]] - List of lines stripped from end markers.
+        """
         out: List[str] = []
         if self.file_exists:
             filepath: Optional[str] = self.file
@@ -102,13 +140,18 @@ class FileProcessor(BData, NoDynamicAttributes):
                 with open(filepath, "r") as file:
                     tmp = file.readlines()
                     for line in tmp:
-                        if line.find("<end of section") > 0:
+                        stripped = line.strip()
+                        if stripped.startswith("# -----<end of section"):
                             continue
-                        out.append(line.strip())
+                        out.append(stripped)
         return out
 
     def write(self, data: str) -> None:
-        """Try to write data to config file."""
+        """Try to write data to config file.
+
+        ### Arguments:
+        * data: str - Serialized configuration payload.
+        """
         test: bool = self.file_exists
         if not test:
             test = self.file_create()

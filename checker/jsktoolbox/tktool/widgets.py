@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-widgets.py
-Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-Created: 15.01.2024, 10:42:01
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 2024-01-15
 
-Purpose: custom tkinter widgets.
+Purpose: Provide reusable Tk/ttk widgets such as status bars, tooltips, and scrollable frames.
 
-VerticalScrolledFrame: https://gist.github.com/novel-yet-trivial/3eddfce704db3082e38c84664fc1fdf8
+The module centralises convenience components that enhance Tkinter UIs with common patterns like
+status reporting, hover hints, and vertically scrolling containers.
+
+VerticalScrolledFrame based on https://gist.github.com/novel-yet-trivial/3eddfce704db3082e38c84664fc1fdf8
 """
 
 
@@ -18,13 +20,29 @@ from .base import TkBase
 
 
 class StatusBarTkFrame(tk.Frame, TkBase):
-    """Status bar widget."""
+    """Tkinter status bar frame.
+
+    Renders a label-driven status bar with a size grip for resizing actions.
+    """
 
     __status: tk.StringVar = None  # type: ignore
     __status_label: tk.Label = None  # type: ignore
     __sizegrip: ttk.Sizegrip = None  # type: ignore
 
     def __init__(self, master: tk.Misc, *args, **kwargs) -> None:
+        """Initialise the Tkinter status bar.
+
+        ### Arguments:
+        * master: tk.Misc - Parent widget that owns this frame.
+        * *args: Any - Positional arguments forwarded to `tk.Frame`.
+        * **kwargs: Any - Keyword arguments forwarded to `tk.Frame`.
+
+        ### Returns:
+        None - Constructor configures widget state.
+
+        ### Raises:
+        * None: Construction relies on Tkinter widget creation only.
+        """
         tk.Frame.__init__(self, master, *args, **kwargs)
 
         self.__status = tk.StringVar()
@@ -41,24 +59,60 @@ class StatusBarTkFrame(tk.Frame, TkBase):
         self.__sizegrip.pack(side=tk.RIGHT, anchor=tk.SE)
 
     def set(self, value: str) -> None:
-        """Set status message."""
+        """Update the status label text.
+
+        ### Arguments:
+        * value: str - Text displayed inside the status label.
+
+        ### Returns:
+        None - Performs widget update side effects.
+
+        ### Raises:
+        * None: Tkinter handles rendering errors internally.
+        """
         self.__status.set(value)
         self.__status_label.update_idletasks()
 
     def clear(self) -> None:
-        """Clear status message."""
+        """Reset the status label to an empty string.
+
+        ### Arguments:
+        * None: No public arguments.
+
+        ### Returns:
+        None - Performs widget update side effects.
+
+        ### Raises:
+        * None: Tkinter handles rendering errors internally.
+        """
         self.__status.set("")
         self.__status_label.update_idletasks()
 
 
 class StatusBarTtkFrame(ttk.Frame, TkBase):
-    """Status bar widget."""
+    """ttk status bar frame.
+
+    Provides a themed status label with an optional size grip.
+    """
 
     __status: tk.StringVar = None  # type: ignore
     __status_label: ttk.Label = None  # type: ignore
     __sizegrip: ttk.Sizegrip = None  # type: ignore
 
     def __init__(self, master: tk.Misc, *args, **kwargs) -> None:
+        """Initialise the ttk status bar.
+
+        ### Arguments:
+        * master: tk.Misc - Parent widget that owns this frame.
+        * *args: Any - Positional arguments forwarded to `ttk.Frame`.
+        * **kwargs: Any - Keyword arguments forwarded to `ttk.Frame`.
+
+        ### Returns:
+        None - Constructor configures widget state.
+
+        ### Raises:
+        * None: Construction relies on ttk widget creation only.
+        """
         ttk.Frame.__init__(self, master, *args, **kwargs)
 
         self.__status = tk.StringVar()
@@ -73,25 +127,40 @@ class StatusBarTtkFrame(ttk.Frame, TkBase):
         self.__sizegrip.pack(side=tk.RIGHT, anchor=tk.SE)
 
     def set(self, value: str) -> None:
-        """Set status message."""
+        """Update the status label text.
+
+        ### Arguments:
+        * value: str - Text displayed inside the status label.
+
+        ### Returns:
+        None - Performs widget update side effects.
+
+        ### Raises:
+        * None: Tkinter handles rendering errors internally.
+        """
         self.__status.set(value)
         self.__status_label.update_idletasks()
 
     def clear(self) -> None:
-        """Clear status message."""
+        """Reset the status label to an empty string.
+
+        ### Arguments:
+        * None: No public arguments.
+
+        ### Returns:
+        None - Performs widget update side effects.
+
+        ### Raises:
+        * None: Tkinter handles rendering errors internally.
+        """
         self.__status.set("")
         self.__status_label.update_idletasks()
 
 
 class CreateToolTip(TkBase):
-    """Create a tooltip for a given widget.
+    """Tooltip manager for Tk widgets.
 
-    Constructor:
-    widget: tk.Misc -- Parent widget handler,
-    text: Union[str, List[str], Tuple[str], tk.StringVar] -- text displayed in tooltip,
-    wait_time: int -- delay of displaying tooltip [ms],
-    wrap_length: int -- Limit the number of characters on each line to the specified value.
-                    The default value of 0 means that lines will only be broken on newlines.
+    Attaches hover-driven handlers that display timed toplevel hints for a target widget.
     """
 
     __id: Optional[str] = None
@@ -111,7 +180,21 @@ class CreateToolTip(TkBase):
         wrap_length: int = 0,
         **kwargs,
     ) -> None:
-        """Create class object."""
+        """Initialise the tooltip manager.
+
+        ### Arguments:
+        * widget: tk.Misc - Widget that triggers tooltip display on hover.
+        * text: Union[str, List[str], Tuple[str], tk.StringVar] - Tooltip message or Tk variable.
+        * wait_time: int - Delay in milliseconds before the tooltip appears.
+        * wrap_length: int - Maximum tooltip line width in pixels; 0 keeps Tk defaults.
+        * **kwargs: Any - Extra keyword arguments forwarded to the tooltip label configuration.
+
+        ### Returns:
+        None - Constructor stores configuration and binds widget events.
+
+        ### Raises:
+        * None: Tkinter propagates runtime errors when they occur.
+        """
         # set default attributes
         self.__label_attr = {
             "justify": tk.LEFT,
@@ -134,28 +217,78 @@ class CreateToolTip(TkBase):
         self.__widget.bind("<ButtonPress>", self.__leave)
 
     def __enter(self, event: Optional[tk.Event] = None) -> None:
-        """Call on <Enter> event."""
+        """Handle the `<Enter>` event.
+
+        ### Arguments:
+        * event: Optional[tk.Event] - Tkinter event payload supplied by the binding.
+
+        ### Returns:
+        None - Schedules tooltip presentation.
+
+        ### Raises:
+        * None: Scheduling operations route through Tkinter.
+        """
         self.__schedule()
 
     def __leave(self, event: Optional[tk.Event] = None) -> None:
-        """Call on <Leave> event."""
+        """Handle the `<Leave>` event.
+
+        ### Arguments:
+        * event: Optional[tk.Event] - Tkinter event payload supplied by the binding.
+
+        ### Returns:
+        None - Cancels any pending tooltip display and hides the tip.
+
+        ### Raises:
+        * None: Tkinter handles cancellation routines internally.
+        """
         self.__unschedule()
         self.__hidetip()
 
     def __schedule(self) -> None:
-        """Schedule method."""
+        """Schedule tooltip presentation.
+
+        ### Arguments:
+        * None: No public arguments.
+
+        ### Returns:
+        None - Registers a timed callback via `widget.after`.
+
+        ### Raises:
+        * None: Tkinter handles scheduling errors internally.
+        """
         self.__unschedule()
         self.__id = self.__widget.after(self.__wait_time, self.__showtip)
 
     def __unschedule(self) -> None:
-        """Unschedule method."""
+        """Cancel scheduled tooltip presentation.
+
+        ### Arguments:
+        * None: No public arguments.
+
+        ### Returns:
+        None - Removes any pending `after` callbacks.
+
+        ### Raises:
+        * None: Tkinter handles cancellation failures internally.
+        """
         __id: Optional[str] = self.__id
         self.__id = None
         if __id:
             self.__widget.after_cancel(__id)
 
     def __showtip(self, event: Optional[tk.Event] = None) -> None:
-        """Show tooltip."""
+        """Display the tooltip window.
+
+        ### Arguments:
+        * event: Optional[tk.Event] - Tkinter event payload supplied by the binding.
+
+        ### Returns:
+        None - Creates a transient toplevel with the tooltip label.
+
+        ### Raises:
+        * None: Tkinter manages window creation behaviour.
+        """
         __x: int = 0
         __y: int = 0
         __cx: int
@@ -181,7 +314,17 @@ class CreateToolTip(TkBase):
         label.pack(ipadx=1)
 
     def __hidetip(self) -> None:
-        """Hide tooltip."""
+        """Hide the tooltip window.
+
+        ### Arguments:
+        * None: No public arguments.
+
+        ### Returns:
+        None - Destroys the transient toplevel when present.
+
+        ### Raises:
+        * None: Tkinter handles destruction errors internally.
+        """
         __tw: Optional[Toplevel] = self.__tw
         self.__tw = None
         if __tw:
@@ -189,7 +332,17 @@ class CreateToolTip(TkBase):
 
     @property
     def text(self) -> Union[str, tk.StringVar]:
-        """Return text message."""
+        """Return the tooltip text or Tk variable.
+
+        ### Arguments:
+        * None: No public arguments.
+
+        ### Returns:
+        Union[str, tk.StringVar] - Current text payload, flattened when a list or tuple is provided.
+
+        ### Raises:
+        * None: Text retrieval is free of side effects.
+        """
         if self.__text is None and self.__text_variable is None:
             self.__text = ""
         if self.__text_variable is None:
@@ -204,7 +357,17 @@ class CreateToolTip(TkBase):
 
     @text.setter
     def text(self, value: Union[str, List[str], Tuple[str], tk.StringVar]) -> None:
-        """Set text message object."""
+        """Set the tooltip text content.
+
+        ### Arguments:
+        * value: Union[str, List[str], Tuple[str], tk.StringVar] - Tooltip message or Tk variable.
+
+        ### Returns:
+        None - Updates internal references for future tooltip displays.
+
+        ### Raises:
+        * None: Assignment updates internal state without validation errors.
+        """
         if isinstance(value, tk.StringVar):
             self.__text_variable = value
         else:
@@ -212,10 +375,9 @@ class CreateToolTip(TkBase):
 
 
 class VerticalScrolledTkFrame(tk.Frame, TkBase):
-    """A pure Tkinter scrollable frame that actually works!
-    * Use the 'interior' property to place widgets inside the scrollable frame.
-    * Construct and pack/place/grid normally.
-    * This frame only allows vertical scrolling.
+    """Scrollable Tk frame container.
+
+    Provides a canvas-driven vertical scroller and exposes an interior frame for child widgets.
     """
 
     __vscrollbar: tk.Scrollbar = None  # type: ignore
@@ -255,7 +417,17 @@ class VerticalScrolledTkFrame(tk.Frame, TkBase):
 
     @property
     def interior(self) -> tk.Frame:
-        """The interior property."""
+        """Return the interior frame container.
+
+        ### Arguments:
+        * None: No public arguments.
+
+        ### Returns:
+        tk.Frame - Frame that should receive child widgets.
+
+        ### Raises:
+        * None: Accessors return cached references only.
+        """
         return self.__interior
 
     def __configure_interior(self, event: Optional[tk.Event] = None) -> None:
@@ -296,7 +468,19 @@ class VerticalScrolledTkFrame(tk.Frame, TkBase):
         self.__canvas.unbind_all("<MouseWheel>")
 
     def __on_mousewheel(self, event: tk.Event) -> None:
-        """Linux uses event.num; Windows / Mac uses event.delta"""
+        """Translate mouse wheel events into vertical scrolling.
+
+        Linux relies on `event.num` while Windows and macOS provide `event.delta`.
+
+        ### Arguments:
+        * event: tk.Event - Mouse wheel event emitted by Tkinter.
+
+        ### Returns:
+        None - Adjusts the canvas viewport in response to the event.
+
+        ### Raises:
+        * None: Scroll handling defers to Tkinter canvas methods.
+        """
         # print(f"{event}")
         # print(f"{type(event)}")
         if event.num == 4 or event.delta > 0:
@@ -306,10 +490,9 @@ class VerticalScrolledTkFrame(tk.Frame, TkBase):
 
 
 class VerticalScrolledTtkFrame(ttk.Frame, TkBase):
-    """A pure Tkinter scrollable frame that actually works!
-    * Use the 'interior' property to place widgets inside the scrollable frame.
-    * Construct and pack/place/grid normally.
-    * This frame only allows vertical scrolling.
+    """Scrollable ttk frame container.
+
+    Uses a Tk canvas plus a themed frame to offer vertical scrolling for child widgets.
     """
 
     __vscrollbar: ttk.Scrollbar = None  # type: ignore
@@ -349,7 +532,17 @@ class VerticalScrolledTtkFrame(ttk.Frame, TkBase):
 
     @property
     def interior(self) -> ttk.Frame:
-        """The interior property."""
+        """Return the interior frame container.
+
+        ### Arguments:
+        * None: No public arguments.
+
+        ### Returns:
+        ttk.Frame - Themed frame that should receive child widgets.
+
+        ### Raises:
+        * None: Accessors return cached references only.
+        """
         return self.__interior
 
     def __configure_interior(self, event: Optional[tk.Event] = None) -> None:
@@ -390,7 +583,19 @@ class VerticalScrolledTtkFrame(ttk.Frame, TkBase):
         self.__canvas.unbind_all("<MouseWheel>")
 
     def __on_mousewheel(self, event: tk.Event) -> None:
-        """Linux uses event.num; Windows / Mac uses event.delta"""
+        """Translate mouse wheel events into vertical scrolling.
+
+        Linux relies on `event.num` while Windows and macOS provide `event.delta`.
+
+        ### Arguments:
+        * event: tk.Event - Mouse wheel event emitted by Tkinter.
+
+        ### Returns:
+        None - Adjusts the canvas viewport in response to the event.
+
+        ### Raises:
+        * None: Scroll handling defers to Tkinter canvas methods.
+        """
         # print(f"{event}")
         # print(f"{type(event)}")
         if event.num == 4 or event.delta > 0:

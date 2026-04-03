@@ -1,9 +1,12 @@
 # -*- coding: UTF-8 -*-
 """
 Author:  Jacek Kotlarski --<szumak@virthost.pl>
-Created: 04.09.2023
+Created: 2023-09-04
 
-Purpose: logs subsystem classes.
+Purpose: Implement logging client, engine, and processing thread utilities.
+
+These classes orchestrate message queuing, engine dispatch, and background
+processing for the logging subsystem.
 """
 
 import time
@@ -41,11 +44,14 @@ class LoggerClient(BLoggerQueue, NoDynamicAttributes):
     def __init__(
         self, queue: Optional[LoggerQueue] = None, name: Optional[str] = None
     ) -> None:
-        """Constructor.
+        """Initialise a logging client instance.
 
         ### Arguments:
-        * queue [LoggerQueue] - optional LoggerQueue class object from LoggerEngine, required, but can be set after the object is created,
-        * name [str] - optional client name for logs decorator
+        * queue: Optional[LoggerQueue] - Shared queue supplied by a `LoggerEngine`.
+        * name: Optional[str] - Optional client prefix added to messages.
+
+        ### Returns:
+        None - Constructor.
         """
         # store name
         self.name = name
@@ -55,12 +61,23 @@ class LoggerClient(BLoggerQueue, NoDynamicAttributes):
 
     @property
     def name(self) -> Optional[str]:
-        """Get name property."""
+        """Return the configured client name.
+
+        ### Returns:
+        Optional[str] - Client identifier or None.
+        """
         return self._get_data(key=LogKeys.NAME, set_default_type=Optional[str])
 
     @name.setter
     def name(self, name: Optional[str]) -> None:
-        """Set name property."""
+        """Set the client name.
+
+        ### Arguments:
+        * name: Optional[str] - Desired identifier, trimmed when provided.
+
+        ### Returns:
+        None - Internal state updated.
+        """
         if name is None:
             self._set_data(key=LogKeys.NAME, value=None, set_default_type=Optional[str])
         else:
@@ -69,7 +86,19 @@ class LoggerClient(BLoggerQueue, NoDynamicAttributes):
             )
 
     def message(self, message: str, log_level: str = LogsLevelKeys.INFO) -> None:
-        """Send message to logging subsystem."""
+        """Emit a log message at the requested level.
+
+        ### Arguments:
+        * message: str - Payload to log.
+        * log_level: str - Severity key from `LogsLevelKeys`; defaults to INFO.
+
+        ### Returns:
+        None - Message enqueued when a queue is available.
+
+        ### Raises:
+        * TypeError: When `log_level` is not a string.
+        * KeyError: When `log_level` is not recognised.
+        """
         if not isinstance(log_level, str):
             raise Raise.error(
                 f"Expected 'log_level' as string type, received: '{type(log_level)}'.",
@@ -93,74 +122,74 @@ class LoggerClient(BLoggerQueue, NoDynamicAttributes):
 
     @property
     def message_alert(self) -> None:
-        """Do nothing, for defining setter only."""
+        """Placeholder for ALERT message setter."""
 
     @message_alert.setter
     def message_alert(self, message: str) -> None:
-        """Property for sending messages with ALERT level."""
+        """Send an ALERT-level message via the client property interface."""
         self.message(message, LogsLevelKeys.ALERT)
 
     @property
     def message_critical(self) -> None:
-        """Do nothing, for defining setter only."""
+        """Placeholder for CRITICAL message setter."""
 
     @message_critical.setter
     def message_critical(self, message: str) -> None:
-        """Property for sending messages with CRITICAL level."""
+        """Send a CRITICAL-level message via the client property interface."""
         self.message(message, LogsLevelKeys.CRITICAL)
 
     @property
     def message_debug(self) -> None:
-        """Do nothing, for defining setter only."""
+        """Placeholder for DEBUG message setter."""
 
     @message_debug.setter
     def message_debug(self, message: str) -> None:
-        """Property for sending messages with DEBUG level."""
+        """Send a DEBUG-level message via the client property interface."""
         self.message(message, LogsLevelKeys.DEBUG)
 
     @property
     def message_emergency(self) -> None:
-        """Do nothing, for defining setter only."""
+        """Placeholder for EMERGENCY message setter."""
 
     @message_emergency.setter
     def message_emergency(self, message: str) -> None:
-        """Property for sending messages with EMERGENCY level."""
+        """Send an EMERGENCY-level message via the client property interface."""
         self.message(message, LogsLevelKeys.EMERGENCY)
 
     @property
     def message_error(self) -> None:
-        """Do nothing, for defining setter only."""
+        """Placeholder for ERROR message setter."""
 
     @message_error.setter
     def message_error(self, message: str) -> None:
-        """Property for sending messages with ERROR level."""
+        """Send an ERROR-level message via the client property interface."""
         self.message(message, LogsLevelKeys.ERROR)
 
     @property
     def message_info(self) -> None:
-        """Do nothing, for defining setter only."""
+        """Placeholder for INFO message setter."""
 
     @message_info.setter
     def message_info(self, message: str) -> None:
-        """Property for sending messages with INFO level."""
+        """Send an INFO-level message via the client property interface."""
         self.message(message, LogsLevelKeys.INFO)
 
     @property
     def message_notice(self) -> None:
-        """Do nothing, for defining setter only."""
+        """Placeholder for NOTICE message setter."""
 
     @message_notice.setter
     def message_notice(self, message: str) -> None:
-        """Property for sending messages with NOTICE level."""
+        """Send a NOTICE-level message via the client property interface."""
         self.message(message, LogsLevelKeys.NOTICE)
 
     @property
     def message_warning(self) -> None:
-        """Do nothing, for defining setter only."""
+        """Placeholder for WARNING message setter."""
 
     @message_warning.setter
     def message_warning(self, message: str) -> None:
-        """Property for sending messages with WARNING level."""
+        """Send a WARNING-level message via the client property interface."""
         self.message(message, LogsLevelKeys.WARNING)
 
 
@@ -168,7 +197,7 @@ class LoggerEngine(BLoggerQueue, NoDynamicAttributes):
     """LoggerEngine container class."""
 
     def __init__(self) -> None:
-        """Constructor."""
+        """Initialise the logging engine with default outputs."""
         # make logs queue object
         self.logs_queue = LoggerQueue()
         # default logs level configuration
@@ -187,11 +216,17 @@ class LoggerEngine(BLoggerQueue, NoDynamicAttributes):
         ]
 
     def add_engine(self, log_level: str, engine: ILoggerEngine) -> None:
-        """Add LoggerEngine to specific log level.
+        """Attach an engine to a specific log level.
 
         ### Arguments:
-        * log_level [str] - String Key from .base_log.LogsLevelKeys.keys,
-        * engine [ILoggerEngine] - an object created from Engine classes.
+        * log_level: str - Severity identifier from `LogsLevelKeys`.
+        * engine: ILoggerEngine - Engine instance handling the level.
+
+        ### Returns:
+        None - Internal configuration updated.
+
+        ### Raises:
+        * TypeError: When `log_level` is not a string or `engine` is not an `ILoggerEngine`.
         """
         if not isinstance(log_level, str):
             raise Raise.error(
@@ -226,9 +261,10 @@ class LoggerEngine(BLoggerQueue, NoDynamicAttributes):
                     self._data[LogKeys.CONF][log_level].append(engine)
 
     def send(self) -> None:
-        """The LoggerEngine method.
+        """Dequeue pending messages and dispatch them to engines.
 
-        For sending messages to the configured logging subsystem.
+        ### Returns:
+        None - The queue is drained until empty.
         """
         while True:
             if self.logs_queue is not None:
@@ -257,7 +293,7 @@ class ThLoggerProcessor(threading.Thread, ThBaseObject, NoDynamicAttributes):
     """LoggerProcessor thread class."""
 
     def __init__(self, debug: bool = False) -> None:
-        """Constructor."""
+        """Initialise processing thread state."""
         threading.Thread.__init__(self, name=self._c_name)
         self._stop_event = threading.Event()
         self._debug = debug
@@ -266,12 +302,23 @@ class ThLoggerProcessor(threading.Thread, ThBaseObject, NoDynamicAttributes):
 
     @property
     def logger_engine(self) -> Optional[LoggerEngine]:
-        """Returns LoggerEngine object if any."""
+        """Return the associated logger engine instance.
+
+        ### Returns:
+        Optional[LoggerEngine] - Engine reference or None.
+        """
         return self._get_data(key=_Keys.LEO, set_default_type=Optional[LoggerEngine])
 
     @logger_engine.setter
     def logger_engine(self, engine: LoggerEngine) -> None:
-        """Sets LoggerEngine object."""
+        """Assign the logger engine and propagate its queue to the client.
+
+        ### Arguments:
+        * engine: LoggerEngine - Engine instance powering the processor.
+
+        ### Returns:
+        None - Internal references updated.
+        """
         self._set_data(
             key=_Keys.LEO, set_default_type=Optional[LoggerEngine], value=engine
         )
@@ -280,12 +327,23 @@ class ThLoggerProcessor(threading.Thread, ThBaseObject, NoDynamicAttributes):
 
     @property
     def logger_client(self) -> Optional[LoggerClient]:
-        """Returns LoggerClient object if any."""
+        """Return the associated logger client instance.
+
+        ### Returns:
+        Optional[LoggerClient] - Client reference or None.
+        """
         return self._get_data(key=_Keys.LCO, set_default_type=Optional[LoggerClient])
 
     @logger_client.setter
     def logger_client(self, client: LoggerClient) -> None:
-        """Set LoggerEngine object."""
+        """Assign the logger client, syncing queues if necessary.
+
+        ### Arguments:
+        * client: LoggerClient - Client instance providing message publishing.
+
+        ### Returns:
+        None - Internal references updated.
+        """
         self._set_data(
             key=_Keys.LCO, set_default_type=Optional[LoggerClient], value=client
         )
@@ -298,7 +356,11 @@ class ThLoggerProcessor(threading.Thread, ThBaseObject, NoDynamicAttributes):
             self.logger_client.logs_queue = self.logger_engine.logs_queue
 
     def run(self) -> None:
-        """Start the procedure."""
+        """Process the logging queue until stopped.
+
+        ### Raises:
+        * ValueError: When required engine or client references are missing.
+        """
         # check list
         if self.logger_engine is None:
             raise Raise.error(
@@ -325,7 +387,7 @@ class ThLoggerProcessor(threading.Thread, ThBaseObject, NoDynamicAttributes):
         self.logger_engine.send()
 
     def stop(self) -> None:
-        """Set stop event."""
+        """Request the background thread to stop."""
         if self._debug and self.logger_client:
             self.logger_client.message_debug = f"[{self._c_name}] stopping..."
         if self._stop_event:
@@ -333,7 +395,11 @@ class ThLoggerProcessor(threading.Thread, ThBaseObject, NoDynamicAttributes):
 
     @property
     def stopped(self) -> bool:
-        """Return stop flag."""
+        """Return True when the stop event has been set.
+
+        ### Returns:
+        bool - Stop flag state.
+        """
         if self._stop_event:
             return self._stop_event.is_set()
         return True

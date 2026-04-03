@@ -1,37 +1,40 @@
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
 """
-queue.py
-Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-Created: 6.09.2024, 16:43:41
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 2024-09-06
 
-Purpose: Queue for logs subsystem.
+Purpose: Provide a minimal FIFO queue implementation for the logging subsystem.
+
+`LoggerQueue` stores log level/message pairs in memory when engines cannot
+dispatch immediately.
 """
 
-from typing import Optional, Tuple, List, Any
+from typing import Optional, List
 
 from ..attribtool import NoDynamicAttributes
 from ..basetool.classes import BClasses
 from .keys import LogsLevelKeys
 from ..raisetool import Raise
-
-
 from inspect import currentframe
-from typing import List
 
 
 class LoggerQueue(BClasses, NoDynamicAttributes):
-    """LoggerQueue simple class."""
+    """In-memory FIFO storage for log messages."""
 
     __queue: List[List[str]] = []
 
     def __init__(self) -> None:
-        """Constructor."""
+        """Initialise an empty queue."""
         self.__queue = []
 
     def get(self) -> Optional[tuple[str, ...]]:
-        """Get item from queue.
+        """Return and remove the next queued log entry.
 
-        Returns queue tuple[log_level:str, message:str] or None if empty.
+        ### Returns:
+        Optional[tuple[str, ...]] - Tuple in form `(level, message)` or None when empty.
+
+        ### Raises:
+        * Exception: Re-raised as `Raise.error` when unexpected errors occur.
         """
         try:
             return tuple(self.__queue.pop(0))
@@ -46,7 +49,18 @@ class LoggerQueue(BClasses, NoDynamicAttributes):
             )
 
     def put(self, message: str, log_level: str = LogsLevelKeys.INFO) -> None:
-        """Put item to queue."""
+        """Append a new log entry to the queue.
+
+        ### Arguments:
+        * message: str - Log message payload.
+        * log_level: str - Log severity; defaults to `LogsLevelKeys.INFO`.
+
+        ### Returns:
+        None - The queue is mutated in place.
+
+        ### Raises:
+        * KeyError: When `log_level` is not part of `LogsLevelKeys.keys`.
+        """
         if log_level not in LogsLevelKeys.keys:
             raise Raise.error(
                 f"logs_level key not found, '{log_level}' received.",

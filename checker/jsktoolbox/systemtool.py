@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
 """
-systemtool.py
-Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-Created: 6.09.2024, 19:53:44
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 2024-09-06
 
-Purpose: various classes of interaction with the system.
+Purpose: Provide helpers for command-line parsing, environment inspection,
+and filesystem path validation used across the toolkit.
 """
 
 
@@ -13,10 +13,12 @@ import sys
 import getopt
 import tempfile
 import subprocess
+import warnings
 
 from inspect import currentframe
 from pathlib import Path
 from typing import Optional, Union, List, Tuple, Dict, Any
+
 
 from .attribtool import ReadOnlyClass
 from .raisetool import Raise
@@ -60,11 +62,15 @@ class CommandLineParser(BData):
     """Parser for command line options."""
 
     def __init__(self) -> None:
-        """Constructor."""
+        """Initialise the parser state.
+
+        ### Returns:
+        None - Constructor.
+        """
         self._set_data(key=_Keys.CONFIGURED_ARGS, value={}, set_default_type=Dict)
         self._set_data(key=_Keys.ARGS, value={}, set_default_type=Dict)
 
-    def configure_argument(
+    def configure_option(
         self,
         short_arg: Optional[str],
         long_arg: str,
@@ -72,14 +78,20 @@ class CommandLineParser(BData):
         has_value: bool = False,
         example_value: Optional[str] = None,
     ) -> None:
-        """Application command line argument configuration method and its description.
+        """Register a command-line option and associated metadata.
 
         ### Arguments:
-        * short_arg [Optional[str]] - optional one character string,
-        * long_arg [str] - required one word string,
-        * desc_arg [Optional[Union[str, List, Tuple]]] - optional argument description,
-        * has_value [bool] - flag, if 'True' argument takes a value, default = False,
-        * example_value [Optional[str]] - example value for argument description.
+        * short_arg: Optional[str] - Optional one-character short form (None → placeholder).
+        * long_arg: str - Long option name without leading dashes.
+        * desc_arg: Optional[Union[str, List, Tuple]] - Optional description or sequence of lines.
+        * has_value: bool - When True the option expects a value.
+        * example_value: Optional[str] - Sample value appended to help text.
+
+        ### Returns:
+        None - Parser configuration is updated.
+
+        ### Raises:
+        * AttributeError: Raised when `long_arg` is empty.
         """
         if _Keys.SHORT_OPTS not in self.__config_args:
             self.__config_args[_Keys.SHORT_OPTS] = ""
@@ -127,13 +139,32 @@ class CommandLineParser(BData):
 
         self.__config_args[_Keys.EXAMPLE_OPTS].append(tmp)
 
-    def parse_arguments(self) -> bool:
-        """Command line arguments parser."""
-        # replace ':' if exists in short option string
+    def configure_argument(
+        self,
+        short_arg: Optional[str],
+        long_arg: str,
+        desc_arg: Optional[Union[str, List, Tuple]] = None,
+        has_value: bool = False,
+        example_value: Optional[str] = None,
+    ) -> None:
+        """[Deprecated] Wrapper preserved for backwards compatibility."""
+        warnings.warn(
+            "The 'configure_argument' method is deprecated, use 'configure_option' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.configure_option(short_arg, long_arg, desc_arg, has_value, example_value)
+
+    def parse(self) -> bool:
+        """Parse command-line arguments using configured option metadata.
+
+        ### Returns:
+        bool - True on successful parsing, False when getopt fails.
+        """
         short_mod = str(self.__config_args[_Keys.SHORT_OPTS]).replace(":", "")
-        long_mod = []
-        for item in self.__config_args[_Keys.LONG_OPTS]:
-            long_mod.append(item.replace("=", ""))
+        long_mod: List[str] = [
+            item.replace("=", "") for item in self.__config_args[_Keys.LONG_OPTS]
+        ]
 
         try:
             opts, _ = getopt.getopt(
@@ -146,24 +177,54 @@ class CommandLineParser(BData):
             return False
 
         for opt, value in opts:
-            for short_arg, long_arg in zip(
-                short_mod,
-                long_mod,
-            ):
+            for short_arg, long_arg in zip(short_mod, long_mod):
                 if opt in ("-" + short_arg, "--" + long_arg):
                     self.args[long_arg] = value
         return True
 
+    def parse_arguments(self) -> bool:
+        """[Deprecated] Wrapper around :meth:`parse`.
+
+        ### Returns:
+        bool - Result of :meth:`parse`.
+        """
+        warnings.warn(
+            "The 'parse_arguments' method is deprecated, use 'parse' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.parse()
+
+    def has_option(self, long_arg: str) -> bool:
+        """Check whether the provided long option was parsed.
+
+        ### Arguments:
+        * long_arg: str - Long option name without dashes.
+
+        ### Returns:
+        bool - True when the option exists in the parsed arguments.
+        """
+        return long_arg in self.args
+
     def get_option(self, long_arg: str) -> Optional[str]:
-        """Get value of the option or None if it doesn't exist."""
+        """Retrieve the option value converted to string.
+
+        ### Arguments:
+        * long_arg: str - Long option name without dashes.
+
+        ### Returns:
+        Optional[str] - Option value string or None when missing.
+        """
         out: Optional[Any] = self.args.get(long_arg)
         if out is None:
             return None
         return str(out)
 
     def dump(self) -> Dict[str, Any]:
-        """Dump configured data structure as Dict:
-        {'long opt name':{'short':str, 'has_value':bool, 'description':str, 'example':str}}
+        """Return configured options metadata as a dictionary.
+
+        ### Returns:
+        Dict[str, Any] - Mapping of long option names to description metadata.
         """
         out: Dict[str, Any] = {}
         short_mod: str = str(self.__config_args[_Keys.SHORT_OPTS]).replace(":", "")
@@ -176,21 +237,24 @@ class CommandLineParser(BData):
         ):
             out[long_arg] = {
                 _CommandKeys.SHORT: short_arg if short_arg != "_" else "",
-                _CommandKeys.HAS_VALUE: True if long_arg[-1] == "=" else False,
+                _CommandKeys.HAS_VALUE: long_arg.endswith("="),
                 _CommandKeys.DESCRIPTION: desc_arg,
                 _CommandKeys.EXAMPLE: ex_arg,
             }
         return out
 
     def help(self) -> None:
-        """Show help information."""
+        """Print a human-readable help summary to stdout.
+
+        ### Returns:
+        None - Help information printed to standard output.
+        """
         command_conf: Dict[str, Any] = self.dump()
         command_opts: str = ""
-        desc_opts: List = []
+        desc_opts: List[str] = []
         max_len: int = 0
-        opt_value: List = []
-        opt_no_value: List = []
-        # stage 1
+        opt_value: List[str] = []
+        opt_no_value: List[str] = []
         for item in command_conf.keys():
             if max_len < len(item):
                 max_len = len(item)
@@ -199,9 +263,7 @@ class CommandLineParser(BData):
             else:
                 opt_no_value.append(item)
         max_len += 7
-        # stage 2
         for item in sorted(opt_no_value):
-            tmp: str = ""
             if command_conf[item][_CommandKeys.SHORT]:
                 tmp = f"-{command_conf[item][_CommandKeys.SHORT]}|--{item} "
             else:
@@ -210,9 +272,7 @@ class CommandLineParser(BData):
                 f" {tmp:<{max_len}}- {command_conf[item][_CommandKeys.DESCRIPTION]}"
             )
             command_opts += tmp
-        # stage 3
         for item in sorted(opt_value):
-            tmp: str = ""
             if command_conf[item][_CommandKeys.SHORT]:
                 tmp = f"-{command_conf[item][_CommandKeys.SHORT]}|--{item}"
             else:
@@ -226,19 +286,27 @@ class CommandLineParser(BData):
             command_opts += " "
         print("###[HELP]###")
         print(f"{sys.argv[0]} {command_opts}")
-        print(f"")
+        print()
         print("# Arguments:")
         for item in desc_opts:
             print(item)
 
     @property
     def args(self) -> Dict[str, Any]:
-        """Returns parsed arguments dict."""
+        """Return parsed argument key/value data.
+
+        ### Returns:
+        Dict[str, Any] - Parsed arguments dictionary.
+        """
         return self._get_data(key=_Keys.ARGS)  # type: ignore
 
     @property
     def __config_args(self) -> Dict[str, Any]:
-        """Returns configured arguments dict."""
+        """Return internal option configuration dictionary.
+
+        ### Returns:
+        Dict[str, Any] - Configuration structure keyed by helper constants.
+        """
         return self._get_data(key=_Keys.CONFIGURED_ARGS)  # type: ignore
 
 
@@ -246,7 +314,7 @@ class Env(BData):
     """Environment class."""
 
     def __init__(self) -> None:
-        """Initialize Env class."""
+        """Initialise environment lookups."""
         home: Optional[str] = os.getenv("HOME")
         if home is None:
             home = os.getenv("HOMEPATH")
@@ -263,44 +331,52 @@ class Env(BData):
 
     @property
     def home(self) -> str:
-        """Returns home dir name."""
+        """Return the detected home directory path."""
         return self._get_data(key=_Keys.HOME, default_value="")  # type: ignore
 
     @property
     def tmpdir(self) -> str:
-        """Returns tmp dir name."""
+        """Return the detected temporary directory path."""
         return self._get_data(key=_Keys.TMP, default_value="")  # type: ignore
 
     @property
     def username(self) -> str:
-        """Returns login name."""
+        """Return the effective login name if available."""
         tmp: Optional[str] = os.getenv("USER")
         if tmp:
             return tmp
         return ""
 
     def os_arch(self) -> str:
-        """Returns multiplatform os architecture.
+        """Return the operating system architecture description.
 
-        Return [str]: '32-bit'|'64-bit'
+        ### Returns:
+        str - Human-readable architecture string (e.g. `64-bit`).
         """
-        os_arch = "32-bit"
-        if os.name == "nt":
-            output = subprocess.check_output(
-                ["wmic", "os", "get", "OSArchitecture"]
-            ).decode()
-            os_arch = output.split()[1]
-        else:
-            output: str = subprocess.check_output(["uname", "-m"]).decode()
-            if "x86_64" in output:
-                os_arch = "64-bit"
+        try:
+            if os.name == "nt":
+                output = subprocess.check_output(
+                    ["wmic", "os", "get", "OSArchitecture"],
+                    stderr=subprocess.DEVNULL,
+                ).decode()
+                parts = output.split()
+                if len(parts) > 1:
+                    return parts[1]
             else:
-                os_arch = "32-bit"
-        return os_arch
+                output = subprocess.check_output(
+                    ["uname", "-m"], stderr=subprocess.DEVNULL
+                ).decode()
+                return "64-bit" if "64" in output else "32-bit"
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            pass
+        import platform
+
+        arch, _ = platform.architecture()
+        return arch or ("64-bit" if sys.maxsize > 2**32 else "32-bit")
 
     @property
     def is_64bits(self) -> bool:
-        """Check 64bits platform."""
+        """Return True when the interpreter runs in 64-bit mode."""
         return sys.maxsize > 2**32
 
 
@@ -308,7 +384,19 @@ class PathChecker(BData):
     """PathChecker class for filesystem path."""
 
     def __init__(self, pathname: str, check_deep: bool = True) -> None:
-        """Constructor."""
+        """Initialise path metadata for the provided pathname.
+
+        ### Arguments:
+        * pathname: str - Path string to inspect.
+        * check_deep: bool - When True analyse path components recursively.
+
+        ### Returns:
+        None - Constructor.
+
+        ### Raises:
+        * TypeError: When pathname is missing or not a string.
+        * ValueError: When pathname is an empty string.
+        """
         if pathname is None:
             raise Raise.error(
                 "Expected 'pathname' as string, not None.",
@@ -338,7 +426,11 @@ class PathChecker(BData):
         self.__run__()
 
     def __run__(self) -> None:
-        """Path analysis procedure."""
+        """Analyse the path and populate cached metadata.
+
+        ### Returns:
+        None - Internal state updated in place.
+        """
         query = Path(self._get_data(key=_Keys.PATH_NAME))  # type: ignore
         # check exists
         self._set_data(key=_Keys.EXISTS, value=query.exists(), set_default_type=bool)
@@ -390,7 +482,11 @@ class PathChecker(BData):
 
     @property
     def dirname(self) -> Optional[str]:
-        """Returns dirname from path."""
+        """Return the directory component when the path exists.
+
+        ### Returns:
+        Optional[str] - Directory path or None when unavailable.
+        """
         tmp_list: List[PathChecker] = self._get_data(key=_Keys.LIST)  # type: ignore
         if self.exists:
             last: Optional[str] = None
@@ -402,7 +498,11 @@ class PathChecker(BData):
 
     @property
     def filename(self) -> Optional[str]:
-        """Returns filename from path."""
+        """Return the filename component when the path points to a file.
+
+        ### Returns:
+        Optional[str] - Filename string or None.
+        """
         if self.exists and self.is_file:
             tmp: list[str] = self.path.split(os.sep)
             if len(tmp) > 0:
@@ -412,38 +512,66 @@ class PathChecker(BData):
 
     @property
     def exists(self) -> bool:
-        """Returns path exists flag."""
+        """Return True when the path exists on the filesystem.
+
+        ### Returns:
+        bool - Existence flag.
+        """
         return self._get_data(key=_Keys.EXISTS)  # type: ignore
 
     @property
     def is_dir(self) -> bool:
-        """Returns path is_dir flag."""
+        """Return True when the path represents a directory.
+
+        ### Returns:
+        bool - Directory flag.
+        """
         return self._get_data(key=_Keys.IS_DIR)  # type: ignore
 
     @property
     def is_file(self) -> bool:
-        """Returns path is_file flag."""
+        """Return True when the path represents a file.
+
+        ### Returns:
+        bool - File flag.
+        """
         return self._get_data(key=_Keys.IS_FILE)  # type: ignore
 
     @property
     def is_symlink(self) -> bool:
-        """Returns path is_symlink flag."""
+        """Return True when the path represents a symlink.
+
+        ### Returns:
+        bool - Symlink flag.
+        """
         return self._get_data(key=_Keys.IS_SYMLINK)  # type: ignore
 
     @property
     def path(self) -> str:
-        """Returns path string."""
+        """Return the original input path string.
+
+        ### Returns:
+        str - Pathname.
+        """
         return self._get_data(key=_Keys.PATH_NAME)  # type: ignore
 
     @property
     def posixpath(self) -> Optional[str]:
-        """Returns path string."""
+        """Return the resolved POSIX path when the target exists.
+
+        ### Returns:
+        Optional[str] - Resolved path or None.
+        """
         if self.exists:
             return self._get_data(key=_Keys.POSIXPATH)  # type: ignore
         return None
 
     def create(self) -> bool:
-        """Create path procedure."""
+        """Create intermediate directories or touch file as required.
+
+        ### Returns:
+        bool - True when the path exists after creation.
+        """
         tmp_list: List[PathChecker] = self._get_data(key=_Keys.LIST)  # type: ignore
         test_path: str = self.path
         file = True

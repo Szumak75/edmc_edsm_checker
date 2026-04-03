@@ -29,6 +29,9 @@ class _Keys(object, metaclass=ReadOnlyClass):
     LOG_QUEUE: str = "__logger_queue__"
     LP_ENGINE: str = "__log_processor_engine__"
     LP_NAME: str = "__log_processor_name__"
+    LP_LOGS_DIR: str = "__log_processor_logs_dir__"
+    LP_MAX_BYTES: str = "__log_processor_max_bytes__"
+    LP_BACKUP_COUNT: str = "__log_processor_backup_count__"
 
 
 class Log(BData):
@@ -86,10 +89,36 @@ class Log(BData):
 class LogProcessor(BData):
     """Log processor access API."""
 
-    def __init__(self, name: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        logs_dir: Optional[str] = None,
+        max_bytes: int = 100000,
+        backup_count: int = 5,
+    ) -> None:
         """Create instance class object for processing single message."""
         # name of app
         self._set_data(key=_Keys.LP_NAME, value=name, set_default_type=str)
+        # logs directory
+        if logs_dir is None:
+            logs_dir = EnvLocal().tmpdir
+        self._set_data(
+            key=_Keys.LP_LOGS_DIR,
+            value=logs_dir,
+            set_default_type=str,
+        )
+        # max bytes
+        self._set_data(
+            key=_Keys.LP_MAX_BYTES,
+            value=max_bytes,
+            set_default_type=int,
+        )
+        # backup count
+        self._set_data(
+            key=_Keys.LP_BACKUP_COUNT,
+            value=backup_count,
+            set_default_type=int,
+        )
         self.loglevel = LogLevels().notset
         self.__logger_init()
 
@@ -116,10 +145,11 @@ class LogProcessor(BData):
 
         log_handler = RotatingFileHandler(
             filename=os.path.join(
-                EnvLocal().tmpdir, f"{self._get_data(key=_Keys.LP_NAME)}.log"
+                f"{self._get_data(key=_Keys.LP_LOGS_DIR)}",
+                f"{self._get_data(key=_Keys.LP_NAME)}.log",
             ),
-            maxBytes=100000,
-            backupCount=5,
+            maxBytes=self._get_data(key=_Keys.LP_MAX_BYTES),  # type: ignore
+            backupCount=self._get_data(key=_Keys.LP_BACKUP_COUNT),  # type: ignore
         )
 
         log_handler.setLevel(self.loglevel)

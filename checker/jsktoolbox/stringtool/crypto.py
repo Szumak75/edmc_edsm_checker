@@ -3,16 +3,21 @@
 Author:  Jacek Kotlarski --<szumak@virthost.pl>
 Created: 16.10.2023
 
-Purpose: a simple class containing basic cryptographic procedures for strings.
+Purpose: Provide simple, string-centric cryptographic helpers.
+
+This module offers lightweight encoding and cipher helpers intended for quick
+experiments and utilities that operate on user-provided keyboard input.
 """
 
 import string
+import unicodedata
 from typing import Dict
 
 from base64 import b64decode, b64encode
-from codecs import getencoder
+from binascii import Error as BinasciiError
+from codecs import decode
 from inspect import currentframe
-from random import randrange
+from secrets import randbelow
 
 from ..attribtool import NoDynamicAttributes
 from ..raisetool import Raise
@@ -22,29 +27,45 @@ from ..raisetool import Raise
 
 
 class SimpleCrypto(NoDynamicAttributes):
-    """SimpleCrypto class.
-
-    A class that allows performing simple cryptographic operations on strings of characters.
-    """
+    """Utility class for lightweight string encryption and encoding routines."""
 
     @staticmethod
     def chars_table_generator() -> str:
-        """Return printable chars string.
+        """Build the character table used by Caesar-style transformations.
 
-        A static method that returns an extended string of printable characters
-        that is used to generate a translation table in caesar methods.
+        ### Returns:
+        [str] - Ordered set of printable and selected Unicode characters used for mapping.
         """
-        return string.printable + "ĄĆĘŁŃÓŚŻŹąćęłńóśżź"
+        base_chars: str = string.printable
+        unicode_blocks: tuple[range, ...] = (
+            range(0x00A0, 0x024F + 1),
+            range(0x0370, 0x03FF + 1),
+            range(0x0400, 0x052F + 1),
+            range(0x0530, 0x058F + 1),
+            range(0x0590, 0x05FF + 1),
+            range(0x0600, 0x06FF + 1),
+        )
+        extra_chars = [
+            chr(code)
+            for block in unicode_blocks
+            for code in block
+            if unicodedata.category(chr(code))[0] != 'C'
+        ]
+        combined: str = base_chars + ''.join(extra_chars)
+        return ''.join(dict.fromkeys(combined))
 
     @classmethod
     def salt_generator(cls, length: int = 8) -> int:
-        """Method for generate random salt with specific length.
+        """Generate a numeric salt with the requested number of digits.
 
-        ### Arguments
-        * length [int] - number of digits in the generated salt
+        ### Arguments:
+        * length: int - Desired digit count for the generated salt.
 
-        ### Returns
-        [int] - salt number
+        ### Returns:
+        [int] - Random salt constrained to the given length.
+
+        ### Raises:
+        * ValueError: Provided length is less than 1.
         """
         if length < 1:
             raise Raise.error(
@@ -53,18 +74,24 @@ class SimpleCrypto(NoDynamicAttributes):
                 cls.__qualname__,
                 currentframe(),
             )
-        return randrange(int(10**length / 10), 10**length - 1)
+        min_value: int = 10 ** (length - 1)
+        range_size: int = 10**length - min_value
+        return min_value + randbelow(range_size)
 
     @classmethod
     def caesar_encrypt(cls, salt: int, message: str) -> str:
-        """Caesar encoder method with chars translate table.
+        """Encode a message using a Caesar cipher over the generated table.
 
         ### Arguments:
-        * salt [int]    - a number used to calculate the offset in the translation table,
-        * message [str] - string to encode,
+        * salt: int - Value used to derive the rotation offset.
+        * message: str - Plain-text message to encode.
 
         ### Returns:
-        [str]  - encoded string
+        [str] - Encoded message.
+
+        ### Raises:
+        * TypeError: Salt is not an integer.
+        * TypeError: Message is not a string instance.
         """
         if not isinstance(salt, int):
             raise Raise.error(
@@ -89,14 +116,18 @@ class SimpleCrypto(NoDynamicAttributes):
 
     @classmethod
     def caesar_decrypt(cls, salt: int, message: str) -> str:
-        """Caesar decoder method with chars translate table.
+        """Decode a Caesar-encrypted message using the generated table.
 
         ### Arguments:
-        * salt [int]    - a number used to calculate the offset in the translation table,
-        * message [str] - encoded string,
+        * salt: int - Value used to derive the rotation offset.
+        * message: str - Encoded message to decode.
 
         ### Returns:
-        [str]  - decoded string
+        [str] - Plain-text message.
+
+        ### Raises:
+        * TypeError: Salt is not an integer.
+        * TypeError: Message is not a string instance.
         """
         if not isinstance(salt, int):
             raise Raise.error(
@@ -121,13 +152,16 @@ class SimpleCrypto(NoDynamicAttributes):
 
     @classmethod
     def rot13_codec(cls, message: str) -> str:
-        """Rot13 encoder/decoder method.
+        """Perform ROT13 translation for ASCII-compatible text.
 
         ### Arguments:
-        * message [str] - string for encode/decode
+        * message: str - Text to encode or decode using ROT13.
 
         ### Returns:
-        [str] - encoded/decoded string
+        [str] - Transformed message.
+
+        ### Raises:
+        * TypeError: Message is not a string instance.
         """
         if not isinstance(message, str):
             raise Raise.error(
@@ -136,18 +170,20 @@ class SimpleCrypto(NoDynamicAttributes):
                 cls.__qualname__,
                 currentframe(),
             )
-        codec = lambda s: getencoder("rot13")(s)[0]
-        return codec(message)  # type: ignore
+        return decode(message, "rot_13")
 
     @classmethod
     def b64_encrypt(cls, message: str) -> str:
-        """Base64 encoder method.
+        """Encode a string as Base64 using UTF-8 bytes.
 
         ### Arguments:
-        * message [str] - string for encode,
+        * message: str - Text to encode.
 
         ### Returns:
-        [str] - base64 encoded string.
+        [str] - Base64-encoded representation.
+
+        ### Raises:
+        * TypeError: Message is not a string instance.
         """
         if not isinstance(message, str):
             raise Raise.error(
@@ -156,17 +192,21 @@ class SimpleCrypto(NoDynamicAttributes):
                 cls.__qualname__,
                 currentframe(),
             )
-        return b64encode(message.encode("UTF-32")).decode()
+        return b64encode(message.encode("utf-8")).decode("ascii")
 
     @classmethod
     def b64_decrypt(cls, message: str) -> str:
-        """Base64 decoder method.
+        """Decode a Base64 string assuming UTF-8 payload.
 
         ### Arguments:
-        * message [str] - base64 string for decode,
+        * message: str - Base64 text to decode.
 
         ### Returns:
-        [str] - decoded string.
+        [str] - Decoded plain-text message.
+
+        ### Raises:
+        * TypeError: Message is not a string instance.
+        * ValueError: Provided payload is not valid Base64.
         """
         if not isinstance(message, str):
             raise Raise.error(
@@ -175,18 +215,33 @@ class SimpleCrypto(NoDynamicAttributes):
                 cls.__qualname__,
                 currentframe(),
             )
-        return b64decode(message.encode("UTF-32")).decode("UTF-32")
+        try:
+            raw_bytes = b64decode(message.encode("ascii"), validate=True)
+        except (BinasciiError, UnicodeEncodeError) as exc:
+            raise Raise.error(
+                "Invalid Base64 payload.",
+                ValueError,
+                cls.__qualname__,
+                currentframe(),
+            ) from exc
+        return raw_bytes.decode("utf-8")
 
     @classmethod
     def multiple_encrypt(cls, salt: int, message: str) -> str:
-        """Multiple encoder method.
+        """Apply Caesar, ROT13, and Base64 encoders sequentially.
+
+        The method first performs ROT13, then a Caesar shift, and finally Base64
+        encoding to produce a layered transformation.
 
         ### Arguments:
-        * salt [int]    - a number used to calculate the offset in the translation table,
-        * message [str] - string to encode,
+        * salt: int - Value used to derive the Caesar translation offset.
+        * message: str - Plain-text message to encode.
 
         ### Returns:
-        [str]  - encoded string
+        [str] - Result of the chained encoders.
+
+        ### Raises:
+        * TypeError: Message is not a string instance.
         """
         if not isinstance(message, str):
             raise Raise.error(
@@ -199,14 +254,18 @@ class SimpleCrypto(NoDynamicAttributes):
 
     @classmethod
     def multiple_decrypt(cls, salt: int, message: str) -> str:
-        """Multiple decoder method.
+        """Reverse the layered encoding applied by `multiple_encrypt`.
 
         ### Arguments:
-        * salt [int]    - a number used to calculate the offset in the translation table,
-        * message [str] - encoded string,
+        * salt: int - Value used to derive the Caesar translation offset.
+        * message: str - Encoded message produced by `multiple_encrypt`.
 
         ### Returns:
-        [str]  - decoded string
+        [str] - Original plain-text message.
+
+        ### Raises:
+        * TypeError: Message is not a string instance.
+        * ValueError: Nested Base64 payload is invalid.
         """
         if not isinstance(message, str):
             raise Raise.error(

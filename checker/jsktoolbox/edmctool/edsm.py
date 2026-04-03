@@ -9,7 +9,6 @@ Purpose:
 
 import requests  # type: ignore
 import json
-import json
 
 from typing import Dict, List, Optional, Any, Union
 from requests.utils import requote_uri  # type: ignore

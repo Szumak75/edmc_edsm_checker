@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-data.py
-Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-Created: 15.01.2024, 10:23:11
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 2024-01-15
 
-Purpose: BData container base class.
+Purpose: Provide a typed container mixin with helper accessors.
+
+`BData` ensures subclasses can manage internal dictionaries with optional type
+constraints, reliable copying, and lifecycle utilities for managed state.
 """
 
 import copy
@@ -18,25 +20,50 @@ from .classes import BClasses
 
 
 class BData(BClasses):
-    """BData container class."""
+    """Container base class that adds typed dictionary semantics."""
 
     __data: Optional[Dict[str, Any]] = None
     __types: Optional[Dict[str, Any]] = None
 
     def __check_keys(self, key: str) -> bool:
-        """Checks if key is present in __data list."""
+        """Check if the key is available in the storage dictionary.
+
+        ### Arguments:
+        * key: str - Dictionary key to verify.
+
+        ### Returns:
+        [bool] - True when the key exists, False otherwise.
+        """
         if self.__data and key in self.__data:
             return True
         return False
 
     def __has_type(self, key: str) -> bool:
-        """Checks if key is present in __types list."""
+        """Check if a type hint is registered for the given key.
+
+        ### Arguments:
+        * key: str - Dictionary key to verify.
+
+        ### Returns:
+        [bool] - True when a type constraint is registered.
+        """
         if self.__types and key in self.__types:
             return True
         return False
 
     def __check_type(self, key: str, received_type: Optional[Any]) -> bool:
-        """Check that the stored type matches the received type."""
+        """Validate that the stored type matches the received one.
+
+        ### Arguments:
+        * key: str - Dictionary key whose type should be verified.
+        * received_type: Optional[Any] - Type extracted from input data.
+
+        ### Returns:
+        [bool] - True when the type matches the stored constraint.
+
+        ### Raises:
+        * KeyError: Raised when the key has no registered type constraint.
+        """
         if self.__types and self.__has_type(key):
             if received_type == self.__types[key]:
                 return True
@@ -52,7 +79,10 @@ class BData(BClasses):
         """Copy data from the internal dictionary.
 
         ### Arguments:
-        * key [str] - variable name,
+        * key: str - Variable name to copy.
+
+        ### Returns:
+        [Optional[Any]] - Deep copy of the stored value or None when missing.
         """
         if self.__check_keys(key):
             return copy.deepcopy(self._data[key])
@@ -67,9 +97,15 @@ class BData(BClasses):
         """Gets data from internal dict.
 
         ### Arguments:
-        * key [str] - variable name,
-        * set_default_type [Optional[Any]] - sets and restrict default type of variable if not None,
-        * default_value [Optional[Any]] - returns it if variable not found
+        * key: str - Variable name.
+        * set_default_type: Optional[Any] - Optional type restriction to register.
+        * default_value: Optional[Any] - Fallback value when the key is missing.
+
+        ### Returns:
+        [Optional[Any]] - Stored value or provided default.
+
+        ### Raises:
+        * TypeError: Default value does not match the registered type.
         """
         if self.__check_keys(key):
             return self._data[key]
@@ -98,9 +134,12 @@ class BData(BClasses):
         """Sets data to internal dict.
 
         ### Arguments:
-        * key [str] - variable name,
-        * value [Optional[Any]] - value of variable
-        * set_default_type [Optional[Any]] - sets and restrict default type of variable if not None,
+        * key: str - Variable name.
+        * value: Optional[Any] - Value to assign.
+        * set_default_type: Optional[Any] - Optional type restriction for the key.
+
+        ### Raises:
+        * TypeError: Value violates the registered or provided type constraint.
         """
         if self.__types is None:
             self.__types = {}
@@ -142,7 +181,7 @@ class BData(BClasses):
         """Delete data and data type from internal dict.
 
         ### Arguments:
-        * key [str] - variable name to delete
+        * key: str - Variable name to delete.
         """
         if self.__check_keys(key):
             del self._data[key]
@@ -155,7 +194,7 @@ class BData(BClasses):
         If key is not found, does nothing.
 
         ### Arguments:
-        * key [str] - variable name to delete
+        * key: str - Variable name to delete.
         """
         if self.__check_keys(key):
             if isinstance(self._data[key], (List, Dict)):
@@ -164,7 +203,11 @@ class BData(BClasses):
 
     @property
     def _data(self) -> Dict[str, Any]:
-        """Return data dict."""
+        """Return the internal data dictionary, initializing if needed.
+
+        ### Returns:
+        [Dict[str, Any]] - Mutable storage dictionary.
+        """
         if self.__data is None:
             self.__data = {}
         if self.__types is None:
@@ -173,7 +216,15 @@ class BData(BClasses):
 
     @_data.setter
     def _data(self, value: Optional[Dict[str, Any]]) -> None:
-        """Set data dict."""
+        """Assign a dictionary to the internal storage.
+
+        ### Arguments:
+        * value: Optional[Dict[str, Any]] - New dictionary or None to clear.
+
+        ### Raises:
+        * TypeError: Provided value is neither None nor a dictionary.
+        * TypeError: Incoming values conflict with registered type constraints.
+        """
         if value is None:
             if self.__data is not None:
                 self.__data.clear()
@@ -201,7 +252,7 @@ class BData(BClasses):
 
     @_data.deleter
     def _data(self) -> None:
-        """Delete data dict."""
+        """Delete the data dictionary and registered types."""
         if self.__data is not None:
             self.__data.clear()
         if self.__types is not None:

@@ -1,9 +1,12 @@
 # -*- coding: UTF-8 -*-
 """
 Author:  Jacek Kotlarski --<szumak@virthost.pl>
-Created: 01.09.2023
+Created: 2023-09-01
 
-Purpose: For compatibility reasons only.
+Purpose: Retain backward compatibility for legacy imports.
+
+This module re-exports `BClasses` and `BData` while emitting a deprecation
+warning that directs users to the modern `jsktoolbox.basetool` package.
 """
 
 import warnings

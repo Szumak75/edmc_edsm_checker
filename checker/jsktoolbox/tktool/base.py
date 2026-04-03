@@ -1,17 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-base.py
-Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-Created: 15.01.2024, 13:41:50
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 2024-01-15
 
-Purpose: Base classes for tkinter.
+Purpose: Provide lightweight base mixins shared by Tk widgets in the toolkit.
+
+Tk modules rely on these helpers to align Tkinter widget attributes with the broader toolkit
+conventions, reducing boilerplate for derived classes.
 """
 
 from ..attribtool import NoDynamicAttributes
 
 
 class TkBase(NoDynamicAttributes):
-    """Base class for classes derived from Tk."""
+    """Common Tk widget mixin.
+
+    Disables dynamic attribute assignment and documents the canonical Tkinter attributes expected on
+    toolkit widgets.
+    """
 
     _name = None
     _tkloaded = None

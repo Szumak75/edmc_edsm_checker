@@ -1,10 +1,12 @@
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
 """
-keys.py
-Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-Created: 6.09.2024, 16:45:42
+Author:  Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+Created: 2024-09-06
 
-Purpose: Keys definition classes for logs subsystem
+Purpose: Define read-only key containers for the logging subsystem.
+
+The module centralises symbolic names for log levels, facilities, and queue
+attributes to keep engines, formatters, and clients aligned.
 """
 
 import syslog
@@ -62,19 +64,31 @@ class SysLogKeys(object, metaclass=ReadOnlyClass):
     @classmethod
     @property
     def level(cls) -> type[__Levels]:
-        """Returns Levels keys property."""
+        """Return the syslog levels namespace.
+
+        ### Returns:
+        type[__Levels] - Read-only container exposing syslog log level constants.
+        """
         return cls.__Levels
 
     @classmethod
     @property
     def facility(cls) -> type[__Facilities]:
-        """Returns Facility keys property."""
+        """Return the syslog facilities namespace.
+
+        ### Returns:
+        type[__Facilities] - Read-only container exposing syslog facility constants.
+        """
         return cls.__Facilities
 
     @classmethod
     @property
     def level_keys(cls) -> Dict:
-        """Returns level keys property."""
+        """Return mapping of level strings to syslog constants.
+
+        ### Returns:
+        Dict - Dictionary mapping human-readable level names to syslog values.
+        """
         return {
             "ALERT": SysLogKeys.level.ALERT,
             "CRITICAL": SysLogKeys.level.CRITICAL,
@@ -89,7 +103,11 @@ class SysLogKeys(object, metaclass=ReadOnlyClass):
     @classmethod
     @property
     def facility_keys(cls) -> Dict:
-        """Returns Facility keys property."""
+        """Return mapping of facility strings to syslog constants.
+
+        ### Returns:
+        Dict - Dictionary mapping human-readable facility names to syslog values.
+        """
         return {
             "DAEMON": SysLogKeys.facility.DAEMON,
             "LOCAL0": SysLogKeys.facility.LOCAL0,
@@ -121,7 +139,11 @@ class LogsLevelKeys(object, metaclass=ReadOnlyClass):
     @classmethod
     @property
     def keys(cls) -> tuple:
-        """Return tuple of available keys."""
+        """Return tuple of available log level keys.
+
+        ### Returns:
+        tuple - All supported log level identifiers.
+        """
         return tuple(
             [
                 LogsLevelKeys.ALERT,

@@ -24,7 +24,10 @@ class B64Converter(NoDynamicAttributes):
         cls, bytes64: bytes, encoding: str = "ascii", errors: str = "replace"
     ) -> str:
         """Returns decoded bytes to string."""
-        return base64.b64decode(bytes64).decode(encoding=encoding, errors=errors)
+        return base64.b64decode(bytes64).decode(
+            encoding=encoding,
+            errors=errors,
+        )
 
 
 # #[EOF]#######################################################################

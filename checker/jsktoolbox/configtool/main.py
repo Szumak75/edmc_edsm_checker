@@ -41,7 +41,11 @@ class _Keys(object, metaclass=ReadOnlyClass):
 
 
 class Config(BData, NoDynamicAttributes):
-    """Config main class."""
+    """High-level configuration manager combining data and file processors.
+
+    ### Purpose:
+    Loads, modifies, and saves INI-like configuration files.
+    """
 
     def __init__(
         self,
@@ -49,7 +53,13 @@ class Config(BData, NoDynamicAttributes):
         main_section_name: str,
         auto_create: bool = False,
     ) -> None:
-        """Constructor."""
+        """Initialise Config object.
+
+        ### Arguments:
+        * filename: str - Path to configuration file.
+        * main_section_name: str - Name of the primary section.
+        * auto_create: bool - Create file on demand when True.
+        """
         self._set_data(
             key=_Keys.FP, value=FileProcessor(), set_default_type=FileProcessor
         )
@@ -74,21 +84,40 @@ class Config(BData, NoDynamicAttributes):
 
     @property
     def __fp(self) -> FileProcessor:
-        """Return FileProcessor object."""
+        """Return FileProcessor object.
+
+        ### Returns:
+        [FileProcessor] - Underlying file helper.
+        """
         return self._get_data(key=_Keys.FP)  # type: ignore
 
     @property
     def __dp(self) -> DataProcessor:
-        """Return DataProcessor object."""
+        """Return DataProcessor object.
+
+        ### Returns:
+        [DataProcessor] - Underlying data helper.
+        """
         return self._get_data(key=_Keys.DP)  # type: ignore
 
     @property
     def file_exists(self) -> bool:
-        """Check if file exists."""
+        """Check if file exists.
+
+        ### Returns:
+        [bool] - True when configuration file exists.
+        """
         return self.__fp.file_exists
 
     def __value_parser(self, item: str) -> Any:
-        """Return proper type of value."""
+        """Return proper type of value.
+
+        ### Arguments:
+        * item: str - Raw string token.
+
+        ### Returns:
+        [Any] - Parsed value converted to bool/int/float/list/str.
+        """
         if self._data[_Keys.RE_BOOL].match(item):
             return True if self._data[_Keys.RE_TRUE].match(item) else False
         elif self._data[_Keys.RE_INT].match(item):
@@ -104,7 +133,17 @@ class Config(BData, NoDynamicAttributes):
         return str(item.strip("\"'"))
 
     def __var_parser(self, line: str) -> Dict:
-        """Return Dict[varname, value, desc]."""
+        """Return dictionary describing a parsed variable line.
+
+        ### Arguments:
+        * line: str - Raw config line containing `key = value`.
+
+        ### Returns:
+        [Dict[str, Any]] - Mapping with varname, value, and description.
+
+        ### Raises:
+        * ValueError: Unexpected line format.
+        """
         out: dict[str, Any] = {
             _Keys.VARNAME: None,
             _Keys.VALUE: None,
@@ -119,6 +158,13 @@ class Config(BData, NoDynamicAttributes):
                 currentframe(),
             )
         out[_Keys.VARNAME] = tmp[0].strip()
+        if not out[_Keys.VARNAME]:
+            raise Raise.error(
+                "Unexpected config line format: missing variable name.",
+                ValueError,
+                self._c_name,
+                currentframe(),
+            )
         if len(tmp[1]) > 0:
             tmp = tmp[1].split("#", 1)
             # desc
@@ -130,7 +176,11 @@ class Config(BData, NoDynamicAttributes):
         return out
 
     def load(self) -> bool:
-        """Load config file to DataProcessor."""
+        """Load config file to DataProcessor.
+
+        ### Returns:
+        [bool] - True when at least one line was processed.
+        """
         test = False
         # 1. load file into list
         file: List[str] = self.__fp.readlines()
@@ -154,12 +204,23 @@ class Config(BData, NoDynamicAttributes):
                     desc=out[_Keys.DESC],
                 )
             else:
+                if "=" in line:
+                    raise Raise.error(
+                        f"Unexpected config line format: '{line}'",
+                        ValueError,
+                        self._c_name,
+                        currentframe(),
+                    )
                 self.__dp.set(section_name, desc=line)
             test = True
         return test
 
     def save(self) -> bool:
-        """Save config file from DataProcessor."""
+        """Save config file from DataProcessor.
+
+        ### Returns:
+        [bool] - True after successful write.
+        """
         test = False
         self.__fp.write(self.__dp.dump)
         test = True
@@ -168,7 +229,16 @@ class Config(BData, NoDynamicAttributes):
     def get(
         self, section: str, varname: Optional[str] = None, desc: bool = False
     ) -> Any:
-        """Get and return data."""
+        """Get and return data.
+
+        ### Arguments:
+        * section: str - Section name.
+        * varname: Optional[str] - Variable name.
+        * desc: bool - Whether to fetch description.
+
+        ### Returns:
+        [Any] - Value or description depending on `desc`.
+        """
         return self.__dp.get(section, varname, desc)
 
     def set(
@@ -178,11 +248,28 @@ class Config(BData, NoDynamicAttributes):
         value: Optional[Any] = None,
         desc: Optional[str] = None,
     ) -> None:
-        """Set data."""
+        """Set data.
+
+        ### Arguments:
+        * section: str - Section name.
+        * varname: Optional[str] - Variable name.
+        * value: Optional[Any] - Value payload.
+        * desc: Optional[str] - Description text.
+        """
         self.__dp.set(section, varname, value, desc)
 
     def has_section(self, section: str) -> bool:
-        """Check section name in config file."""
+        """Check section name in config file.
+
+        ### Arguments:
+        * section: str - Section name to validate.
+
+        ### Returns:
+        [bool] - True when section exists.
+
+        ### Raises:
+        * TypeError: Section name is not a string.
+        """
         if not isinstance(section, str):
             raise Raise.error(
                 f"Expected String type, received: '{type(section)}'.",
@@ -193,7 +280,18 @@ class Config(BData, NoDynamicAttributes):
         return self.__dp.get_section(section) is not None
 
     def has_varname(self, section_name: str, varname: str) -> bool:
-        """Check varname in section."""
+        """Check varname in section.
+
+        ### Arguments:
+        * section_name: str - Section name.
+        * varname: str - Variable name.
+
+        ### Returns:
+        [bool] - True when variable exists.
+
+        ### Raises:
+        * TypeError: Variable name is not a string.
+        """
         if not isinstance(varname, str):
             raise Raise.error(
                 f"Expected String type, received: '{type(varname)}'.",
@@ -210,7 +308,11 @@ class Config(BData, NoDynamicAttributes):
 
     @property
     def main_section_name(self) -> Optional[str]:
-        """Return main section name string."""
+        """Return main section name string.
+
+        ### Returns:
+        [Optional[str]] - Name of the main section.
+        """
         return self.__dp.main_section
 
 

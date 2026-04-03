@@ -21,7 +21,11 @@ class RBQuery(BData):
 
     def __init__(self) -> None:
         """Constructor."""
-        self._data[RBQuery.Keys.SEARCH] = {}
+        self._set_data(
+            key=RBQuery.Keys.SEARCH,
+            set_default_type=Dict,
+            value={},
+        )
 
     def add_attrib(self, attrib: str, value: Optional[str] = None) -> None:
         """Build query
@@ -30,14 +34,15 @@ class RBQuery(BData):
         * attrib -- name of the attribute being searched for
 
         ### Keyword Arguments:
-        * value -- optional value of the attribute being searched for (default: {None})
+        * value -- optional value of the attribute being searched for
+          (default: {None})
         """
-        self._data[RBQuery.Keys.SEARCH][attrib] = value
+        self._get_data(key=RBQuery.Keys.SEARCH)[attrib] = value  # type: ignore
 
     @property
     def query(self) -> Dict:
         """Returns query dict."""
-        return copy(self._data[RBQuery.Keys.SEARCH])
+        return copy(self._get_data(key=RBQuery.Keys.SEARCH))  # type: ignore
 
 
 # #[EOF]#######################################################################

@@ -1,16 +1,17 @@
 # -*- coding: UTF-8 -*-
 """
 Author:  Jacek Kotlarski --<szumak@virthost.pl>
-Created: 24.06.2023
+Created: 2023-06-24
 
-Purpose: interfaces class.
+Purpose: Define abstract comparator interfaces used across numeric and
+address-related helpers.
 """
 
 from abc import ABC, abstractmethod
 
 
 class ILt(ABC):
-    """Less then.
+    """Less than.
 
     x < y
     """
@@ -21,7 +22,7 @@ class ILt(ABC):
 
 
 class ILe(ABC):
-    """Less then or equal.
+    """Less than or equal.
 
     x <= y
     """
@@ -54,7 +55,7 @@ class INe(ABC):
 
 
 class IGt(ABC):
-    """Greater then.
+    """Greater than.
 
     x > y
     """
@@ -76,7 +77,7 @@ class IGe(ABC):
 
 
 class IComparators(IEq, IGe, IGt, ILe, ILt, INe):
-    """A set of comparators."""
+    """Aggregate interface grouping all comparison operators."""
 
     pass
 

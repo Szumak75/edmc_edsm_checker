@@ -61,7 +61,11 @@ class IModel(ABC):
 
 
 class VariableModel(BData, IModel, NoDynamicAttributes):
-    """VariableModel class."""
+    """Representation of a configuration variable entry.
+
+    ### Purpose:
+    Stores name, value, and description for a single configuration variable.
+    """
 
     def __init__(
         self,
@@ -69,13 +73,23 @@ class VariableModel(BData, IModel, NoDynamicAttributes):
         value: Optional[Union[str, int, float, bool, List]] = None,
         desc: Optional[str] = None,
     ) -> None:
-        """Constructor."""
+        """Initialise a variable record.
+
+        ### Arguments:
+        * name: Optional[str] - Variable identifier.
+        * value: Optional[Union[str, int, float, bool, List]] - Payload to store.
+        * desc: Optional[str] - Optional human-friendly description.
+        """
         self._data[_Keys.NAME] = name
         self._data[_Keys.VALUE] = value
         self._data[_Keys.DESC] = desc
 
     def __repr__(self) -> str:
-        """Return representation class string."""
+        """Return representation class string.
+
+        ### Returns:
+        [str] - Debug-friendly section representation.
+        """
         tmp: str = ""
         tmp += f"name='{self.name}', " if self.name is not None else ""
         if isinstance(self.value, (int, float, bool)):
@@ -88,7 +102,11 @@ class VariableModel(BData, IModel, NoDynamicAttributes):
         return f"{self._c_name}({tmp})"
 
     def __str__(self) -> str:
-        """Return formatted string."""
+        """Return formatted section header.
+
+        ### Returns:
+        [str] - String in INI-style header format.
+        """
         tmp: str = ""
         tmp += f"{self.name} = " if self.name is not None else ""
         if isinstance(self.value, (int, float, bool)):
@@ -107,44 +125,102 @@ class VariableModel(BData, IModel, NoDynamicAttributes):
 
     @property
     def desc(self) -> Optional[str]:
-        """Get description property."""
+        """Get description property.
+
+        ### Returns:
+        [Optional[str]] - Description string or None.
+        """
         return self._get_data(key=_Keys.DESC, set_default_type=Optional[str])
 
     @desc.setter
     def desc(self, desc: Optional[str]) -> None:
-        """Set description property."""
+        """Set description property.
+
+        ### Arguments:
+        * desc: Optional[str] - Description text.
+        """
         self._set_data(key=_Keys.DESC, value=desc, set_default_type=Optional[str])
 
     @property
     def dump(self) -> TVariableModel:
-        """Dump data."""
+        """Dump data.
+
+        ### Returns:
+        [List[Any]] - Shallow copy of section with variables.
+        """
         return self  # type: ignore
 
     @property
     def name(self) -> Optional[str]:
-        """Get name property."""
+        """Get name property.
+
+        ### Returns:
+        [Optional[str]] - Section name.
+        """
         return self._get_data(key=_Keys.NAME, set_default_type=Optional[str])
 
     @name.setter
     def name(self, name: Optional[str]) -> None:
-        """Set name property."""
+        """Set name property.
+
+        ### Arguments:
+        * name: Optional[str] - New variable name.
+
+        ### Raises:
+        * ValueError: Raised when the trimmed name becomes empty.
+        """
         if name is None:
             self._set_data(key=_Keys.NAME, value=None, set_default_type=Optional[str])
         else:
+            cleaned = name.strip()
+            if not cleaned:
+                raise Raise.error(
+                    "Variable name cannot be empty.",
+                    ValueError,
+                    self._c_name,
+                    currentframe(),
+                )
             self._set_data(
-                key=_Keys.NAME, value=name.strip(), set_default_type=Optional[str]
+                key=_Keys.NAME, value=cleaned, set_default_type=Optional[str]
             )
 
     def parser(self, value: str) -> None:
-        """Parser method."""
+        """Parse raw string input ensuring valid state.
+
+        ### Arguments:
+        * value: str - Raw value string.
+
+        ### Raises:
+        * ValueError: Raised when the parsed value is empty after trimming.
+        """
+
+        if not value.strip():
+            raise Raise.error(
+                "Variable value cannot be empty.",
+                ValueError,
+                self._c_name,
+                currentframe(),
+            )
+        self.value = value
 
     def search(self, name: str) -> bool:
-        """Search method."""
+        """Search method.
+
+        ### Arguments:
+        * name: str - Section name to match.
+
+        ### Returns:
+        [bool] - True when names coincide.
+        """
         return self.name == name
 
     @property
     def value(self) -> Optional[Union[str, int, float, bool, List]]:
-        """Get value property."""
+        """Get value property.
+
+        ### Returns:
+        [Optional[Union[str, int, float, bool, List]]] - Stored value.
+        """
         return self._get_data(
             key=_Keys.VALUE,
             set_default_type=Optional[Union[str, int, float, bool, List]],
@@ -152,7 +228,11 @@ class VariableModel(BData, IModel, NoDynamicAttributes):
 
     @value.setter
     def value(self, value: Optional[Union[str, int, float, bool, List]]) -> None:
-        """Set value property."""
+        """Set value property.
+
+        ### Arguments:
+        * value: Optional[Union[str, int, float, bool, List]] - Payload.
+        """
         self._set_data(
             key=_Keys.VALUE,
             value=value,
@@ -161,25 +241,45 @@ class VariableModel(BData, IModel, NoDynamicAttributes):
 
 
 class SectionModel(BData, IModel, NoDynamicAttributes):
-    """SectionModel class."""
+    """Representation of a configuration section.
+
+    ### Purpose:
+    Aggregates variables and descriptions under a named section.
+    """
 
     def __init__(self, name: Optional[str] = None) -> None:
-        """Constructor."""
+        """Initialise section state.
+
+        ### Arguments:
+        * name: Optional[str] - Optional section header value.
+        """
         self._data[_Keys.NAME] = None
         self._data[_Keys.VARIABLES] = []
         self.parser(name)
 
     def __repr__(self) -> str:
-        """Return representation class string."""
+        """Return representation class string.
+
+        ### Returns:
+        [str] - Debug-friendly section representation.
+        """
         return f"{self._c_name}(name='{self.name}')"
 
     def __str__(self) -> str:
-        """Return formatted string."""
+        """Return formatted section header.
+
+        ### Returns:
+        [str] - String in INI-style header format.
+        """
         return f"[{self.name}]"
 
     @property
     def dump(self) -> List[Any]:
-        """Dump data."""
+        """Dump data.
+
+        ### Returns:
+        [List[Any]] - Shallow copy of section with variables.
+        """
         tmp: List = []
         tmp.append(self)
         for item in self._data[_Keys.VARIABLES]:
@@ -187,7 +287,14 @@ class SectionModel(BData, IModel, NoDynamicAttributes):
         return copy(tmp)
 
     def parser(self, value: Optional[str]) -> None:
-        """Parser method."""
+        """Parse and validate section name.
+
+        ### Arguments:
+        * value: Optional[str] - Raw header text.
+
+        ### Raises:
+        * ValueError: Raised when the name resolves to an empty string.
+        """
         if value is None:
             return
         tmp: str = f"{value}".strip("[] \n")
@@ -202,21 +309,43 @@ class SectionModel(BData, IModel, NoDynamicAttributes):
             )
 
     def search(self, name: str) -> bool:
-        """Search method."""
+        """Search method.
+
+        ### Arguments:
+        * name: str - Section name to match.
+
+        ### Returns:
+        [bool] - True when names coincide.
+        """
         return self.name == name
 
     @property
     def name(self) -> Optional[str]:
-        """Get name property."""
+        """Get name property.
+
+        ### Returns:
+        [Optional[str]] - Section name.
+        """
         return self._data[_Keys.NAME]
 
     @name.setter
     def name(self, name: str) -> None:
-        """Set name property."""
+        """Set name property.
+
+        ### Arguments:
+        * name: str - New section name.
+        """
         self.parser(name)
 
     def get_variable(self, name: str) -> Optional[VariableModel]:
-        """Search and return VariableModel if exists."""
+        """Search and return VariableModel if exists.
+
+        ### Arguments:
+        * name: str - Variable name to locate.
+
+        ### Returns:
+        [Optional[VariableModel]] - Matching variable instance or None.
+        """
         name = str(name)
         for item in self._data[_Keys.VARIABLES]:
             if item.name == name:
@@ -229,9 +358,21 @@ class SectionModel(BData, IModel, NoDynamicAttributes):
         value: Optional[Any] = None,
         desc: Optional[str] = None,
     ) -> None:
-        """Add or update VariableModel."""
+        """Add or update VariableModel.
+
+        ### Arguments:
+        * name: Optional[str] - Variable name to set or update.
+        * value: Optional[Any] - Value payload.
+        * desc: Optional[str] - Description text.
+
+        ### Raises:
+        * ValueError: Raised when both name and value are None.
+        """
         if name is not None:
-            tmp: Optional[VariableModel] = self.get_variable(name)
+            key = name.strip() if isinstance(name, str) else name
+            tmp: Optional[VariableModel] = (
+                self.get_variable(key) if key is not None else None
+            )
             if tmp is not None:
                 item: VariableModel = tmp
                 if value is not None or (value is None and desc is None):
@@ -241,30 +382,55 @@ class SectionModel(BData, IModel, NoDynamicAttributes):
                 return
         # add new VariableModel
         if name is None and value is not None:
-            return
+            raise Raise.error(
+                "Variable name is required when providing a value.",
+                ValueError,
+                self._c_name,
+                currentframe(),
+            )
         self._data[_Keys.VARIABLES].append(VariableModel(name, value, desc))
 
     @property
     def variables(self) -> List[VariableModel]:
-        """Return list of VariableModel."""
+        """Return list of VariableModel.
+
+        ### Returns:
+        [List[VariableModel]] - Mutable list of section variables.
+        """
         return self._data[_Keys.VARIABLES]
 
 
 class DataProcessor(BData, NoDynamicAttributes):
-    """DataProcessor class."""
+    """Manage configuration data composed of sections and variables.
+
+    ### Purpose:
+    Provides helpers for reading, setting, and dumping configuration structures.
+    """
 
     def __init__(self) -> None:
-        """Constructor."""
+        """Initialise DataProcessor state.
+
+        ### Purpose:
+        Ensures the internal container for sections exists.
+        """
         self._data[_Keys.DATA] = []
 
     @property
     def main_section(self) -> Optional[str]:
-        """Return main section name."""
+        """Return main section name.
+
+        ### Returns:
+        [Optional[str]] - Name of the primary section.
+        """
         return self._get_data(key=_Keys.MAIN, set_default_type=Optional[str])
 
     @main_section.setter
     def main_section(self, name: str) -> None:
-        """Set main section name."""
+        """Set main section name.
+
+        ### Arguments:
+        * name: str - Target section name.
+        """
         if not isinstance(name, str):
             name = str(name)
         self._set_data(key=_Keys.MAIN, value=name, set_default_type=Optional[str])
@@ -272,7 +438,11 @@ class DataProcessor(BData, NoDynamicAttributes):
 
     @property
     def sections(self) -> Tuple:
-        """Return sections keys tuple."""
+        """Return sections keys tuple.
+
+        ### Returns:
+        [Tuple] - Tuple containing names of tracked sections.
+        """
         out = []
         for item in self._data[_Keys.DATA]:
             out.append(item.name)
@@ -281,7 +451,11 @@ class DataProcessor(BData, NoDynamicAttributes):
     def add_section(self, name: str) -> str:
         """Add section object to dataset.
 
-        Return: extracted section name.
+        ### Arguments:
+        * name: str - Raw section name.
+
+        ### Returns:
+        [str] - Sanitised section name actually stored.
         """
         sm = SectionModel(str(name))
         if sm.name not in self.sections:
@@ -289,7 +463,14 @@ class DataProcessor(BData, NoDynamicAttributes):
         return f"{sm.name}"
 
     def get_section(self, name: str) -> Optional[SectionModel]:
-        """Get section object if exists."""
+        """Get section object if exists.
+
+        ### Arguments:
+        * name: str - Section name.
+
+        ### Returns:
+        [Optional[SectionModel]] - Matching section or None.
+        """
         sm = SectionModel(name)
         for item in self._data[_Keys.DATA]:
             if item.name == sm.name:
@@ -303,7 +484,14 @@ class DataProcessor(BData, NoDynamicAttributes):
         value: Optional[Any] = None,
         desc: Optional[str] = None,
     ) -> None:
-        """Set data to [SectionModel]->[VariableModel]."""
+        """Set data to [SectionModel]->[VariableModel].
+
+        ### Arguments:
+        * section: str - Section name.
+        * varname: Optional[str] - Variable name.
+        * value: Optional[Any] - Value payload.
+        * desc: Optional[str] - Description text.
+        """
         section_name: str = self.add_section(section)
         tmp: Optional[SectionModel] = self.get_section(section_name)
         if tmp is not None:
@@ -313,7 +501,19 @@ class DataProcessor(BData, NoDynamicAttributes):
     def get(
         self, section: str, varname: Optional[str] = None, desc: bool = False
     ) -> Optional[Any]:
-        """Return value."""
+        """Return value.
+
+        ### Arguments:
+        * section: str - Section name.
+        * varname: Optional[str] - Variable name to fetch.
+        * desc: bool - When True returns description.
+
+        ### Returns:
+        [Optional[Any]] - Value or description based on `desc`.
+
+        ### Raises:
+        * KeyError: Section not present.
+        """
         sm = SectionModel(section)
         if sm.name in self.sections:
             tmp: Optional[SectionModel] = self.get_section(section)
@@ -348,7 +548,17 @@ class DataProcessor(BData, NoDynamicAttributes):
             )
 
     def __dump(self, section: str) -> str:
-        """Return formatted configuration data for section name."""
+        """Return formatted configuration data for section name.
+
+        ### Arguments:
+        * section: str - Section name to dump.
+
+        ### Returns:
+        [str] - Section content formatted for output.
+
+        ### Raises:
+        * KeyError: Section not present.
+        """
         out: str = ""
         if section in self.sections:
             tmp: Optional[SectionModel] = self.get_section(section)
@@ -369,7 +579,14 @@ class DataProcessor(BData, NoDynamicAttributes):
 
     @property
     def dump(self) -> str:
-        """Return formatted configuration data string."""
+        """Return formatted configuration data string.
+
+        ### Returns:
+        [str] - Full configuration payload.
+
+        ### Raises:
+        * KeyError: Main section not set.
+        """
         out: str = ""
 
         # first section is a main section

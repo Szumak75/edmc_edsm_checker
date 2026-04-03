@@ -7,7 +7,7 @@ Purpose: Base classes for elements
 """
 
 
-from typing import Dict, List
+from typing import Dict, List, Any
 
 from .....basetool.data import BData
 from .....attribtool import ReadOnlyClass
@@ -27,18 +27,18 @@ class BElement(BData):
     """Base class for Element."""
 
     @property
-    def attrib(self) -> Dict:
+    def attrib(self) -> Dict[str, Any]:
         """Returns attributes dict."""
-        if _Keys.ATTRIB not in self._data:
-            self._data[_Keys.ATTRIB] = {}
-        return self._data[_Keys.ATTRIB]
+        if self._get_data(key=_Keys.ATTRIB) is None:
+            self._set_data(key=_Keys.ATTRIB, set_default_type=Dict, value={})
+        return self._get_data(key=_Keys.ATTRIB)  # type: ignore
 
     @property
-    def list(self) -> List:
+    def list(self) -> List[str]:
         """Returns lists od items."""
-        if _Keys.LIST not in self._data:
-            self._data[_Keys.LIST] = []
-        return self._data[_Keys.LIST]
+        if self._get_data(key=_Keys.LIST) is None:
+            self._set_data(key=_Keys.LIST, set_default_type=List, value=[])
+        return self._get_data(key=_Keys.LIST)  # type: ignore
 
 
 # #[EOF]#######################################################################

@@ -6,7 +6,10 @@ Created: 04.12.2023
 Purpose: Base classes for RouterOS
 """
 
-from typing import Dict, List, Optional, Union, TypeVar
+from inspect import currentframe
+from typing import Dict, List, Optional, Union, TypeVar, Any
+
+from jsktoolbox.raisetool import Raise
 
 from ...logstool.queue import LoggerQueue
 
@@ -17,7 +20,7 @@ from ..libs.base import BDev
 from ..network.connectors import IConnector
 
 TRouterOS = TypeVar("TRouterOS", bound="BRouterOS")
-TElement = TypeVar("TElement", bound="Element")
+# TElement = TypeVar("TElement", bound="Element")
 
 
 class _Keys(object, metaclass=ReadOnlyClass):
@@ -47,7 +50,8 @@ class BRouterOS(BDev, BElement):
         self.logs = logs
         self.debug = debug
         self.verbose = verbose
-        self._data[_Keys.LOADED] = False
+        self._set_data(key=_Keys.LOADED, set_default_type=bool, value=False)
+        self._set_data(key=_Keys.ELEMENTS, set_default_type=Dict, value={})
 
     def __str__(self) -> str:
         """Returns a string representing the object."""
@@ -64,17 +68,25 @@ class BRouterOS(BDev, BElement):
         """Add children from configuration dict."""
         if parent._ch is None:
             return None
+        if not isinstance(elements_dict, Dict):
+            raise Raise.error(
+                f"Expected dictionary type, received: {type(elements_dict)}",
+                TypeError,
+                self._c_name,
+                currentframe(),
+            )
         for key in elements_dict.keys():
             if key in self.elements:
                 # duplicate
                 if self.debug and self.logs is not None:
                     self.logs.message_debug = f'duplicate key found: "{key}"'
                     continue
+            queue = parent.logs.logs_queue if parent.logs is not None else None
             obj = Element(
                 key=key,
                 parent=parent,
                 connector=parent._ch,
-                qlog=parent.logs.logs_queue if parent.logs is not None else None,
+                qlog=queue,
                 debug=parent.debug,
                 verbose=parent.verbose,
             )
@@ -83,19 +95,25 @@ class BRouterOS(BDev, BElement):
                 obj._add_elements(obj, elements_dict[key])
 
     def dump(self) -> None:
-        """Dump all dataset."""
+        """Dump all dataset.
+
+        For developer debug purpose only.
+        """
         print(self.root)
         self.load(self.root)
         if self.attrib:
             print(f"attrib: {self.attrib}")
         if self.list:
-            # print(f"list: {self.list}")
             for item in self.list:
                 print(f"list: {item}")
         for item in self.elements.values():
             item.dump()
 
-    def element(self, root: str, auto_load: bool = False) -> Optional[TElement]:
+    def element(
+        self,
+        root: str,
+        auto_load: bool = False,
+    ) -> Optional["Element"]:
         """Returns the Element object for corresponding path."""
         # check if first and last char in path is '/'
         if root:
@@ -109,17 +127,18 @@ class BRouterOS(BDev, BElement):
                 if auto_load:
                     element.load(root)
                 return element  # type: ignore
-            element2: Element = element.element(root, auto_load)  # type: ignore
+            element2: Element = element.element(  # type: ignore
+                root,
+                auto_load,
+            )
             if element2 is not None:
                 return element2  # type: ignore
         return None
 
     @property
-    def elements(self) -> Dict:
+    def elements(self) -> Dict[str, Any]:
         """Return elements dict."""
-        if _Keys.ELEMENTS not in self._data:
-            self._data[_Keys.ELEMENTS] = {}
-        return self._data[_Keys.ELEMENTS]
+        return self._get_data(key=_Keys.ELEMENTS)  # type: ignore
 
     def get(self) -> bool:
         """Gets config for current element."""
@@ -128,13 +147,13 @@ class BRouterOS(BDev, BElement):
     @property
     def is_loaded(self) -> bool:
         """Returns True if loaded."""
-        return self._data[_Keys.LOADED]
+        return self._get_data(key=_Keys.LOADED)  # type: ignore
 
     def load(self, root: str) -> bool:
         """Gets element config from RB."""
         if self._ch is None:
             return False
-        if root is not None and not self._data[_Keys.LOADED]:
+        if root is not None and not self.is_loaded:
             ret: bool = self._ch.execute(f"{root}print")
             if ret:
                 out, err = self._ch.outputs()
@@ -145,7 +164,7 @@ class BRouterOS(BDev, BElement):
                     and isinstance(out[0][0], Dict)
                 ):
                     self.attrib.update(out[0][0])
-                    self._data[_Keys.LOADED] = True
+                    self._set_data(key=_Keys.LOADED, value=True)
                 elif (
                     out[0]
                     and isinstance(out[0], List)
@@ -154,7 +173,7 @@ class BRouterOS(BDev, BElement):
                 ):
                     for item in out[0]:
                         self.list.append(item)
-                    self._data[_Keys.LOADED] = True
+                    self._set_data(key=_Keys.LOADED, value=True)
                 else:
                     if out[0]:
                         print(f"DEBUG_: {out}")
@@ -167,6 +186,19 @@ class BRouterOS(BDev, BElement):
 
 class Element(BRouterOS):
     """MikroTik Element class."""
+
+    # TODO:
+    # metody:
+    # - add
+    # - set
+    # - remove
+    # - move
+    # - is_dirty
+    # - commit
+    # - _reload
+    # ze sprawdzeniem kontentu,
+    # weryfikacja wersji ROS
+    # kodowanie stringów
 
     def __init__(
         self,
@@ -187,7 +219,10 @@ class Element(BRouterOS):
         )
         self.root = f"{key}/"
 
-    def search(self, search_dict: Dict) -> Optional[Union[List, Dict]]:
+    def search(
+        self,
+        search_dict: Dict,
+    ) -> Optional[Union[List[str], Dict[str, Any]]]:
         """Returns optional Dict or List[Dict] with found results."""
         # search_dict = {
         # key1: value1,

@@ -10,7 +10,8 @@ import socket
 import struct
 from copy import deepcopy
 from inspect import currentframe
-from typing import TypeVar, Union, List
+import warnings
+from typing import Iterator, Optional, TypeVar, Union, List
 
 from ..attribtool import NoDynamicAttributes
 from ..raisetool import Raise
@@ -19,6 +20,9 @@ from ..libs.interfaces.comparators import IComparators
 from ..basetool.classes import BClasses
 
 TAddress = TypeVar("TAddress", bound="Address")
+
+DEFAULT_IPV4_HOST_LIMIT: int = 65536
+DEFAULT_IPV4_SUBNET_LIMIT: int = 4096
 
 
 class Address(IComparators, BClasses, NoDynamicAttributes):
@@ -307,7 +311,8 @@ class Network(BClasses, NoDynamicAttributes):
     address: Address -- Return IPv4 address set in the constructor.
     broadcast: Address -- Return broadcast address.
     count: int -- Return count hosts addresses in network range.
-    hosts: List[Address] -- Return hosts address list.
+    hosts(limit: Optional[int] = DEFAULT_IPV4_HOST_LIMIT): List[Address] -- Deprecated helper returning host list with an optional safety limit.
+    iter_hosts(limit: Optional[int] = DEFAULT_IPV4_HOST_LIMIT) -> Iterator[Address] -- Lazy host iterator respecting optional limits.
     network: Address -- Return network address.
     mask: Netmask -- Return netmask.
     max: Address -- Return max address of host in network range.
@@ -391,15 +396,55 @@ class Network(BClasses, NoDynamicAttributes):
         broadcast = int(self.broadcast)
         return broadcast - net - 1 if broadcast - net > 2 else 0
 
-    @property
-    def hosts(self) -> List[Address]:
-        """Return list of hosts in network range."""
-        tmp: List[Address] = []
+    def hosts(self, limit: Optional[int] = DEFAULT_IPV4_HOST_LIMIT) -> List[Address]:
+        """Return list of hosts in network range. (Deprecated)
+
+        ### Arguments:
+        * limit: Optional[int] - Maximum number of hosts allowed to materialise. Defaults to DEFAULT_IPV4_HOST_LIMIT.
+
+        ### Returns:
+        [List[Address]] - List of host addresses within the network.
+
+        ### Raises:
+        * ValueError: Raised when the number of hosts exceeds the configured limit.
+        """
+        warnings.warn(
+            "Network.hosts() is deprecated; use Network.iter_hosts() for lazy iteration.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return list(self.iter_hosts(limit=limit))
+
+    def iter_hosts(
+        self, limit: Optional[int] = DEFAULT_IPV4_HOST_LIMIT
+    ) -> Iterator[Address]:
+        """Yield hosts in network range lazily.
+
+        ### Arguments:
+        * limit: Optional[int] - Maximum number of hosts allowed before raising. Defaults to DEFAULT_IPV4_HOST_LIMIT.
+
+        ### Returns:
+        Iterator[Address] - Generator producing host addresses in ascending order.
+
+        ### Raises:
+        * ValueError: Raised when the number of hosts exceeds the configured limit.
+        """
+        effective_limit = limit
+        host_count = self.count
+        if effective_limit is not None and host_count > effective_limit:
+            raise Raise.error(
+                (
+                    f"Network host count ({host_count}) exceeds limit "
+                    f"({effective_limit}). Use iter_hosts(limit=None) for explicit override."
+                ),
+                ValueError,
+                self._c_name,
+                currentframe(),
+            )
         net = int(self.network)
         broadcast = int(self.broadcast)
         for i in range(1, broadcast - net):
-            tmp.append(Address(net + i))
-        return tmp
+            yield Address(net + i)
 
     @property
     def mask(self) -> Netmask:
@@ -440,7 +485,8 @@ class SubNetwork(BClasses, NoDynamicAttributes):
     mask: Netmask -- Subnet mask.
 
     Public property:
-    subnets: List[Network] -- Subnet list.
+    subnets(limit: Optional[int] = DEFAULT_IPV4_SUBNET_LIMIT): List[Network] -- Deprecated helper returning subnet list with an optional safety limit.
+    iter_subnets(limit: Optional[int] = DEFAULT_IPV4_SUBNET_LIMIT) -> Iterator[Network] -- Lazy subnet iterator.
     """
 
     __network: Network = None  # type: ignore
@@ -470,20 +516,58 @@ class SubNetwork(BClasses, NoDynamicAttributes):
                 currentframe(),
             )
 
-    @property
-    def subnets(self) -> List[Network]:
-        """Return subnets list."""
-        tmp: List[Network] = []
+    def subnets(self, limit: Optional[int] = DEFAULT_IPV4_SUBNET_LIMIT) -> List[Network]:
+        """Return subnets list. (Deprecated)
+
+        ### Returns:
+        [List[Network]] - List of generated subnetworks.
+
+        ### Raises:
+        * ValueError: Raised when the number of subnets exceeds the configured limit.
+        """
+        warnings.warn(
+            "SubNetwork.subnets() is deprecated; use SubNetwork.iter_subnets() for lazy iteration.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return list(self.iter_subnets(limit=limit))
+
+    def iter_subnets(
+        self, limit: Optional[int] = DEFAULT_IPV4_SUBNET_LIMIT
+    ) -> Iterator[Network]:
+        """Yield IPv4 subnetworks lazily.
+
+        ### Arguments:
+        * limit: Optional[int] - Maximum number of subnetworks allowed before raising. Defaults to DEFAULT_IPV4_SUBNET_LIMIT.
+
+        ### Returns:
+        Iterator[Network] - Generator producing IPv4 subnetworks in ascending order.
+
+        ### Raises:
+        * ValueError: Raised when the number of subnetworks exceeds the configured limit.
+        """
+        effective_limit = limit
+        produced = 0
         net_start = int(self.__network.network)
         net_end = int(self.__network.broadcast)
         start: int = net_start
         while True:
+            if effective_limit is not None and produced >= effective_limit:
+                raise Raise.error(
+                    (
+                        f"Subnet count exceeds limit ({effective_limit}). "
+                        "Use iter_subnets(limit=None) for explicit override."
+                    ),
+                    ValueError,
+                    self._c_name,
+                    currentframe(),
+                )
             subnet = Network([Address(start), self.__mask])
-            tmp.append(subnet)
+            yield subnet
+            produced += 1
             if int(subnet.broadcast) >= net_end:
                 break
             start = int(subnet.broadcast) + 1
-        return tmp
 
 
 # #[EOF]#######################################################################

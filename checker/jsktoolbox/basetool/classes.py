@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-classes.py
-Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
-Created: 15.01.2024, 10:23:31
+Author:  Jacek Kotlarski --<szumak@virthost.pl>
+Created: 2024-01-15
 
-Purpose:
+Purpose: Deliver lightweight base classes with runtime metadata helpers.
+
+Provides mixins that expose convenience properties for class and method names,
+supporting logging contexts and debugging aids in derived classes.
 """
 
 from inspect import currentframe
@@ -15,16 +17,24 @@ from ..attribtool import NoDynamicAttributes
 
 
 class BClasses(NoDynamicAttributes):
-    """Base class for projects."""
+    """Common base class exposing class and frame metadata helpers."""
 
     @property
     def _c_name(self) -> str:
-        """Return class name."""
+        """Return the name of the current class.
+
+        ### Returns:
+        [str] - Qualified name without module prefix.
+        """
         return self.__class__.__name__
 
     @property
     def _f_name(self) -> str:
-        """Return current method name."""
+        """Return the caller method name using the current frame.
+
+        ### Returns:
+        [str] - Name of the calling method or empty string if unavailable.
+        """
         tmp: Optional[FrameType] = currentframe()
         if tmp is not None:
             frame: Optional[FrameType] = tmp.f_back

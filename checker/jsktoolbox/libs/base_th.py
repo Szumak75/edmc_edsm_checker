@@ -1,9 +1,12 @@
 # -*- coding: UTF-8 -*-
 """
 Author:  Jacek Kotlarski --<szumak@virthost.pl>
-Created: 03.11.2023
+Created: 2023-11-03
 
-Purpose: For compatibility reasons only.
+Purpose: Retain backward compatibility for legacy threading imports.
+
+The module simply re-exports items from `jsktoolbox.basetool.threads` and emits
+an informative deprecation warning.
 """
 
 import warnings
